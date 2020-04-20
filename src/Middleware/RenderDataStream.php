@@ -86,7 +86,7 @@ final class RenderDataStream implements MiddlewareInterface
     }
     private function convertData(DataBucket $data, Converter $converter): StreamInterface
     {
-        $result = $converter->convert($data->getData(), $data->getParams());
+        $result = $converter->convert($data);
         return $this->streamFactory->createStream($result);
     }
     private function getRelevantFormat(?string $format, ServerRequestInterface $request): string
