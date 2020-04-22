@@ -7,9 +7,12 @@ class DataBucket
     /** @var mixed */
     protected $data;
     protected ?int $code = null;
+    /** @var string[] */
     protected array $headers = [];
     protected ?string $format = null;
     protected array $params = [];
+
+    protected const IS_FORMATTABLE = true;
 
     public function __construct($data, string $format = null, array $params = [])
     {
@@ -36,6 +39,10 @@ class DataBucket
     {
         return $this->data;
     }
+    public function isFormattable(): bool
+    {
+        return static::IS_FORMATTABLE;
+    }
 
     public function setCode(?int $code = 200): self
     {
@@ -50,6 +57,11 @@ class DataBucket
     public function addHeaders(array $headers = []): self
     {
         $this->headers = [...$this->headers, ...$headers];
+        return $this;
+    }
+    public function setHeader(string $name, string $value): self
+    {
+        $this->headers[$name] = $value;
         return $this;
     }
     public function setFormat(?string $format, array $params = null): self

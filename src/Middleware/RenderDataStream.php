@@ -56,20 +56,23 @@ final class RenderDataStream implements MiddlewareInterface
             return $response->withBody($this->streamFactory->createStream(''));
         }
 
-        $format = $this->getRelevantFormat($data->getFormat(), $request);
-        [$className, $mime, $deferred] = $this->converters[$format];
+        if ($data->isFormattable()) {
+            $format = $this->getRelevantFormat($data->getFormat(), $request);
+            [$className, $mime, $deferred] = $this->converters[$format];
 
-        /** @var Converter $converter */
-        $converter = $this->container->get($className);
+            /** @var Converter $converter */
+            $converter = $this->container->get($className);
+            $response = $response->withBody(
+                $deferred
+                    ? new GeneratorStream((fn () => yield $this->convertData($data, $converter))())
+                    : $this->convertData($data, $converter)
+            );
 
-        $response = $response->withBody(
-            $deferred
-                ? new GeneratorStream((fn () => yield $this->convertData($data, $converter))())
-                : $this->convertData($data, $converter)
-        );
-
-        if ($mime !== null) {
-            $response = $response->withHeader('Content-Type', $mime);
+            if ($mime !== null) {
+                $response = $response->withHeader('Content-Type', $mime);
+            }
+        } else {
+            $response = $response->withBody($this->createStdStream($data->getData()));
         }
         if ($data->getCode() !== null) {
             $response = $response->withStatus($data->getCode());
@@ -100,5 +103,15 @@ final class RenderDataStream implements MiddlewareInterface
         # todo: get type from header
 
         return array_key_first($this->converters);
+    }
+    private function createStdStream($data): StreamInterface
+    {
+        if ($data instanceof \SplFileInfo) {
+            return $this->streamFactory->createStream($data->getPath());
+        }
+        if (is_resource($data)) {
+            return $this->streamFactory->createStreamFromResource($data);
+        }
+        return $this->streamFactory->createStream(is_string($data) ? $data : '');
     }
 }

@@ -29,8 +29,9 @@ final class SetFormat implements MiddlewareInterface
         $response = $handler->handle($request);
         $stream = $response->getBody();
         if ($stream instanceof DataStream) {
-            if ($stream->getData()->getFormat() === null || $this->force) {
-                $stream->getData()->setFormat($this->converter, $this->params);
+            $data = $stream->getData();
+            if ($data->isFormattable() and $data->getFormat() === null || $this->force) {
+                $data->setFormat($this->converter, $this->params);
             }
         }
         return $response;
