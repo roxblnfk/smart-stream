@@ -37,10 +37,9 @@ class WebTemplateBucket extends DataBucket
         $this->layoutData = $layoutData;
         return $this;
     }
-    public function setTemplate(string $template, array $templateData = []): self
+    public function setTemplate(string $template): self
     {
         $this->template = $template;
-        $this->data = $templateData;
         return $this;
     }
     public function addTemplateData(string $key, $value): self
