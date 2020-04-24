@@ -9,7 +9,6 @@ class WebTemplateBucket extends DataBucket
     private ?string $template = null;
     private ?string $layout = null;
     private array $layoutData = [];
-    private array $templateData = [];
     private array $defaultData = [];
 
     public function getTemplate(): ?string
@@ -30,7 +29,7 @@ class WebTemplateBucket extends DataBucket
     }
     public function getTemplateData(): array
     {
-        return $this->templateData;
+        return $this->data;
     }
     public function setLayout(string $layout, array $layoutData = []): self
     {
@@ -41,7 +40,12 @@ class WebTemplateBucket extends DataBucket
     public function setTemplate(string $template, array $templateData = []): self
     {
         $this->template = $template;
-        $this->templateData = $templateData;
+        $this->data = $templateData;
+        return $this;
+    }
+    public function addTemplateData(string $key, $value): self
+    {
+        $this->data[$key] = $value;
         return $this;
     }
     public function setDefaultData(array $defaultData): self
