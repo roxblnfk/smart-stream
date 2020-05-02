@@ -1,38 +1,20 @@
 # Smart Stream (Concept draft)
 
+[![Latest Stable Version](https://poser.pugx.org/roxblnfk/smart-stream/v/stable.png)](https://packagist.org/packages/roxblnfk/smart-stream)
+[![Total Downloads](https://poser.pugx.org/roxblnfk/smart-stream/downloads.png)](https://packagist.org/packages/roxblnfk/smart-stream)
+[![Build Status](https://scrutinizer-ci.com/g/roxblnfk/smart-stream/badges/build.png?b=master)](https://scrutinizer-ci.com/g/roxblnfk/smart-stream/build-status/master)
+[![Code Coverage](https://scrutinizer-ci.com/g/roxblnfk/smart-stream/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/roxblnfk/smart-stream/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/roxblnfk/smart-stream/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/roxblnfk/smart-stream/?branch=master)
 
-```php
-use Psr\Http\Message\ResponseInterface;
-use \roxblnfk\SmartStream\SmartStreamFactory;
+## Installation
 
-class Controller {
-    private \Psr\Container\ContainerInterface $container;
-    /* ... */
-    function prepareResponse($data): ResponseInterface {
-        if ($data instanceof ResponseInterface) {
-            return $data;
-        }
-        if ($data instanceof \Psr\Http\Message\StreamInterface) {
-            $stream = $data;
-        } else {
-            $stream = $this->container->get(SmartStreamFactory::class)->createStream($data);
-        }
-        return $this->container
-            ->get(\Psr\Http\Message\ResponseFactoryInterface::class)
-            ->createResponse()
-            ->withBody($stream);
-    }
-}
+The preferred way to install this package is through [composer](http://getcomposer.org/download/):
+
+```
+composer require roxblnfk/smart-stream
 ```
 
-```php
-use roxblnfk\SmartStream\Converter\JSONConverter;
-use roxblnfk\SmartStream\Converter\PrintRConverter;
-use roxblnfk\SmartStream\Middleware\RenderDataStream;
+## Documentation
 
-$middleware = (new RenderDataStream($container))
-    ->defineConverter(MyWebViewConverter::class, 'html', 'text/html', false)
-    ->defineConverter(XMLConverter::class, 'xml', 'text/xml', false)
-    ->defineConverter(JSONConverter::class, 'json', 'application/json', false)
-    ->defineConverter(PrintRConverter::class, 'print_r', 'text/plain', false);
-```
+- [English](docs/en/README.md)
+- [Russian](docs/ru/README.md)
