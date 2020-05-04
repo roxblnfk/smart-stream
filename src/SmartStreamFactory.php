@@ -27,7 +27,7 @@ final class SmartStreamFactory
             return $this->defaultFactory->createStream($data);
         }
         if ($data instanceof \SplFileInfo) {
-            return $this->defaultFactory->createStream($data->getPath());
+            return $this->defaultFactory->createStreamFromFile($data->getPath());
         }
         if (is_resource($data)) {
             return $this->defaultFactory->createStreamFromResource($data);
