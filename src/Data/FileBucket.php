@@ -69,16 +69,18 @@ class FileBucket extends DataBucket
     {
         return $this->contentDisposition;
     }
-    public function setInline(): void
+    public function setInline(): self
     {
         $this->contentDisposition = self::DISPOSITION_INLINE;
         $this->setDispositionHeader();
+        return $this;
     }
-    public function setAttachment(?string $filename): void
+    public function setAttachment(?string $filename): self
     {
         $this->contentDisposition = self::DISPOSITION_ATTACHMENT;
         $this->fileName = $filename;
         $this->setDispositionHeader();
+        return $this;
     }
     private function setDispositionHeader(): void
     {
