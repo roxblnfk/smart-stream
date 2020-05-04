@@ -107,7 +107,7 @@ final class RenderDataStream implements MiddlewareInterface
     private function createStdStream($data): StreamInterface
     {
         if ($data instanceof \SplFileInfo) {
-            return $this->streamFactory->createStreamFromFile($data->getPath());
+            return $this->streamFactory->createStreamFromFile($data->getRealPath());
         }
         if (is_resource($data)) {
             return $this->streamFactory->createStreamFromResource($data);
