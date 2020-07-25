@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream\Converter;
 
+use Generator;
+use roxblnfk\SmartStream\ConverterInterface;
 use roxblnfk\SmartStream\Data\DataBucket;
 
-class PrintRConverter implements Converter
+class PrintRConverter implements ConverterInterface
 {
     public static function getFormat(): string
     {
         return 'text/plain';
     }
-    public function convert(DataBucket $data): string
+    public function convert(DataBucket $data): Generator
     {
-        return print_r($data, true);
+        yield print_r($data, true);
     }
 }

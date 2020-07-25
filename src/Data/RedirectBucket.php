@@ -8,7 +8,7 @@ class RedirectBucket extends DataBucket
 {
     protected ?string $location = null;
 
-    protected const IS_FORMATTABLE = false;
+    protected const IS_FORMATABLE = false;
 
     public function __construct(string $location, int $code = 302)
     {

@@ -12,7 +12,7 @@ class DataBucket
     protected ?string $format = null;
     protected array $params = [];
 
-    protected const IS_FORMATTABLE = true;
+    protected const IS_FORMATABLE = true;
 
     public function __construct($data, string $format = null, array $params = [])
     {
@@ -39,9 +39,13 @@ class DataBucket
     {
         return $this->data;
     }
-    public function isFormattable(): bool
+    public function isFormatable(): bool
     {
-        return static::IS_FORMATTABLE;
+        return static::IS_FORMATABLE;
+    }
+    public function hasFormat(): bool
+    {
+        return static::IS_FORMATABLE && $this->format !== null;
     }
 
     public function setCode(?int $code = 200): self
@@ -63,6 +67,12 @@ class DataBucket
     {
         $this->headers[$name] = $value;
         return $this;
+    }
+    public function withFormat(?string $format, array $params = null): self
+    {
+        $clone = clone $this;
+        $clone->setFormat($format, $params);
+        return $clone;
     }
     public function setFormat(?string $format, array $params = null): self
     {

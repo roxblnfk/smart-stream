@@ -3,6 +3,7 @@
 namespace roxblnfk\SmartStream\Data;
 
 use SplFileInfo;
+use Yiisoft\Http\Header;
 
 class FileBucket extends DataBucket
 {
@@ -11,7 +12,7 @@ class FileBucket extends DataBucket
 
     public const TYPE_OCTET_STREAM = 'application/octet-stream';
 
-    protected const IS_FORMATTABLE = false;
+    protected const IS_FORMATABLE = false;
     protected ?string $contentType = null;
     protected ?string $contentDisposition = null;
     protected ?string $fileName = null;
@@ -57,7 +58,7 @@ class FileBucket extends DataBucket
     public function setContentType(?string $contentType): self
     {
         $this->contentType = $contentType;
-        $this->setHeader('Content-Type', $contentType);
+        $this->setHeader(Header::CONTENT_TYPE, $contentType);
         return $this;
     }
     public function getFileName(): ?string
