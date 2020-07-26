@@ -135,13 +135,21 @@ final class BucketStream implements StreamInterface
     {
         return $this->matchedResult === null ? null : $this->matchedResult->getConverter();
     }
-    public function hasFormat(): bool
+    public function hasBucketFormat(): bool
+    {
+        return $this->bucket === null ? false : $this->bucket->hasFormat();
+    }
+    public function hasMatchedFormat(): bool
     {
         return $this->matchedResult !== null;
     }
-    public function getFormat(): ?string
+    public function getMatchedFormat(): ?string
     {
         return $this->matchedResult === null ? null : $this->matchedResult->getFormat();
+    }
+    public function getBucketFormat(): ?string
+    {
+        return $this->bucket === null ? null : $this->bucket->getFormat();
     }
 
     public function isRenderStarted(): bool

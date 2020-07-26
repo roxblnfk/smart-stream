@@ -19,10 +19,10 @@ final class SimpleConverterMatcher implements ConverterMatcherInterface
     private ContainerInterface $container;
     private ?RequestInterface $request = null;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, SimpleMatcherConfig $matcherConfig)
     {
         $this->container = $container;
-        $this->matcherConfig = $container->get(SimpleMatcherConfig::class);
+        $this->matcherConfig = $matcherConfig;
     }
 
     public function match(DataBucket $bucket): ?MatchingResult

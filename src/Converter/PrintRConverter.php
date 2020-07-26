@@ -10,10 +10,6 @@ use roxblnfk\SmartStream\Data\DataBucket;
 
 class PrintRConverter implements ConverterInterface
 {
-    public static function getFormat(): string
-    {
-        return 'text/plain';
-    }
     public function convert(DataBucket $data): Generator
     {
         yield print_r($data, true);
