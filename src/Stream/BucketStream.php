@@ -23,9 +23,9 @@ final class BucketStream implements StreamInterface
         $this->bucket = $bucket;
         $this->converterMatcher = $converterMatcher;
 
-        // if should be converted
         if ($bucket->isConvertable()) {
             $result = $this->converterMatcher->match($this->bucket);
+            // if should be converted but no converter was found
             if ($result === null && $bucket->hasFormat()) {
                 throw new ConverterNotFoundException((string)$bucket->getFormat());
             }
@@ -135,10 +135,16 @@ final class BucketStream implements StreamInterface
     {
         return $this->matchedResult === null ? null : $this->matchedResult->getConverter();
     }
+
     public function hasBucketFormat(): bool
     {
         return $this->bucket === null ? false : $this->bucket->hasFormat();
     }
+    public function getBucketFormat(): ?string
+    {
+        return $this->bucket === null ? null : $this->bucket->getFormat();
+    }
+
     public function hasMatchedFormat(): bool
     {
         return $this->matchedResult !== null;
@@ -146,10 +152,6 @@ final class BucketStream implements StreamInterface
     public function getMatchedFormat(): ?string
     {
         return $this->matchedResult === null ? null : $this->matchedResult->getFormat();
-    }
-    public function getBucketFormat(): ?string
-    {
-        return $this->bucket === null ? null : $this->bucket->getFormat();
     }
 
     public function isRenderStarted(): bool

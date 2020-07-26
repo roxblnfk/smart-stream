@@ -4,16 +4,18 @@
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use roxblnfk\SmartStream\Data\DataBucket;
 use roxblnfk\SmartStream\Data\WebTemplateBucket;
-use \roxblnfk\SmartStream\SmartStreamFactory;
+use roxblnfk\SmartStream\SmartStreamFactory;
 
 class Controller {
     private ContainerInterface $container;
 
     # При необходимости конвертировать произвольные данные в Response
-    protected function prepareResponse($data): ResponseInterface
+    # Необязательный параметр $request может использоваться в поиске формата ответа
+    protected function prepareResponse($data, ?ServerRequestInterface $request = null): ResponseInterface
     {
         if ($data instanceof ResponseInterface) {
             return $data;
@@ -21,7 +23,7 @@ class Controller {
         if ($data instanceof StreamInterface) {
             $stream = $data;
         } else {
-            $stream = $this->container->get(SmartStreamFactory::class)->createStream($data);
+            $stream = $this->container->get(SmartStreamFactory::class)->createStream($data, $request);
         }
         return $this->container
             ->get(ResponseFactoryInterface::class)
@@ -36,12 +38,12 @@ class Controller {
         return (new ApiBucket())->withResult($service->doSomeAction());
     }
 
-    # если DataBucket не обрабатывается в коде вызова pageMain
-    public function pageMain(SomeRepositiry $repository): ResponseInterface
+    # если DataBucket не обрабатывается в коде вызова pageMain и требуется получить ResponseInterface
+    public function pageMain(SomeRepositiry $repository, ServerRequestInterface $request): ResponseInterface
     {
         return $this->prepareResponse((new WebTemplateBucket([
             'data' => $repository->getSomeData(),
-        ]))->withLayout('main-layout')->withTemplate('some-template'));
+        ]))->withLayout('main-layout')->withTemplate('some-template'), $request);
     }
 }
 ```
