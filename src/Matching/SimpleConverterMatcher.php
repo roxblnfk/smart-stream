@@ -73,7 +73,7 @@ final class SimpleConverterMatcher implements ConverterMatcherInterface
     {
         $className = static function (DataBucket $bucket): Generator {
             yield get_class($bucket);
-            yield from get_parent_class($bucket);
+            yield from class_parents($bucket);
         };
         $result = [];
         foreach ($className($bucket) as $bucketClass) {

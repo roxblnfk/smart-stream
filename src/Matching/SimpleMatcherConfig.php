@@ -31,7 +31,7 @@ final class SimpleMatcherConfig
             if (!array_key_exists($bucket, $clone->buckets)) {
                 $clone->buckets[$bucket] = [];
             }
-            $clone->buckets[$bucket][] = [$format];
+            $clone->buckets[$bucket][] = $format;
         }
         return $clone;
     }
