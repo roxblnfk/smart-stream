@@ -40,7 +40,7 @@ final class BucketStreamMiddleware implements MiddlewareInterface
             return $stream->isReadable() ? $response : $response->withBody($this->streamFactory->createStream(''));
         }
 
-        if (!$bucket->isFormatable() && !$stream->isReadable()) {
+        if (!$bucket->isConvertable() && !$stream->isReadable()) {
             $response = $response->withBody($this->createReadableStream($bucket->getData()));
         }
 

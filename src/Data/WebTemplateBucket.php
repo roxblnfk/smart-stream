@@ -31,30 +31,36 @@ class WebTemplateBucket extends DataBucket
     {
         return $this->data;
     }
-    public function setLayout(string $layout, array $layoutData = []): self
+
+    public function withLayout(string $layout, array $layoutData = []): self
     {
-        $this->layout = $layout;
-        $this->layoutData = $layoutData;
-        return $this;
+        $clone = clone $this;
+        $clone->layout = $layout;
+        $clone->layoutData = $layoutData;
+        return $clone;
     }
-    public function setTemplate(string $template): self
+    public function withTemplate(string $template): self
     {
-        $this->template = $template;
-        return $this;
+        $clone = clone $this;
+        $clone->template = $template;
+        return $clone;
     }
-    public function addTemplateData(string $key, $value): self
+    public function withAddedTemplateData(string $key, $value): self
     {
-        $this->data[$key] = $value;
-        return $this;
+        $clone = clone $this;
+        $clone->data[$key] = $value;
+        return $clone;
     }
-    public function setDefaultData(array $defaultData): self
+    public function withDefaultData(array $defaultData): self
     {
-        $this->defaultData = $defaultData;
-        return $this;
+        $clone = clone $this;
+        $clone->defaultData = $defaultData;
+        return $clone;
     }
-    public function addDefaultData(string $key, $value): self
+    public function withAddedDefaultData(string $key, $value): self
     {
-        $this->defaultData[$key] = $value;
-        return $this;
+        $clone = clone $this;
+        $clone->defaultData[$key] = $value;
+        return $clone;
     }
 }

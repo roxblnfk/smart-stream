@@ -171,7 +171,7 @@ final class BucketStream implements StreamInterface
             return;
         }
         // if should be converted
-        if ($this->bucket->isFormatable()) {
+        if ($this->bucket->isConvertable()) {
             $result = $this->converterMatcher->match($this->bucket);
             if ($result === null) {
                 throw new ConverterNotFoundException((string)$this->bucket->getFormat());

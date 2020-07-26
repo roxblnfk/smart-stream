@@ -7,22 +7,15 @@ use Yiisoft\Http\Header;
 
 class FileBucket extends DataBucket
 {
-    public const DISPOSITION_INLINE = 'inline';
-    public const DISPOSITION_ATTACHMENT = 'attachment';
-
     public const TYPE_OCTET_STREAM = 'application/octet-stream';
 
-    protected const IS_FORMATABLE = false;
+    protected const DISPOSITION_INLINE = 'inline';
+    protected const DISPOSITION_ATTACHMENT = 'attachment';
+
+    protected const IS_CONVERTABLE = false;
     protected ?string $contentType = null;
     protected ?string $contentDisposition = null;
     protected ?string $fileName = null;
-
-    public static function createFromFile(string $filePath): self
-    {
-        $finfo = new SplFileInfo($filePath);
-        $type = (function_exists('mime_content_type') && mime_content_type($filePath)) ?: null;
-        return new static($finfo, $type, $finfo->getFilename());
-    }
 
     /**
      * FileBucket constructor.
@@ -34,9 +27,13 @@ class FileBucket extends DataBucket
     public function __construct($data, string $contentType = null, string $filename = null)
     {
         switch (true) {
+            case $data instanceof SplFileInfo:
+                $filename = $filename ?? $data->getFilename();
+                $contentType = $contentType ?? $this->contentType($filename);
+                parent::__construct($data);
+                break;
             case is_string($data):
             case is_resource($data):
-            case $data instanceof SplFileInfo:
                 parent::__construct($data);
                 break;
             default:
@@ -51,39 +48,68 @@ class FileBucket extends DataBucket
         }
     }
 
+    public static function createFromPath(string $filePath): self
+    {
+        return new static(new SplFileInfo($filePath));
+    }
+
     public function getContentType(): ?string
     {
         return $this->contentType;
-    }
-    public function setContentType(?string $contentType): self
-    {
-        $this->contentType = $contentType;
-        $this->setHeader(Header::CONTENT_TYPE, $contentType);
-        return $this;
     }
     public function getFileName(): ?string
     {
         return $this->fileName;
     }
-
-    public function getContentDisposition(): ?string
+    public function hasDisposition(): bool
     {
-        return $this->contentDisposition;
+        return $this->contentDisposition !== null;
     }
-    public function setInline(): self
+    public function isAttachment(): bool
+    {
+        return $this->contentDisposition === self::DISPOSITION_ATTACHMENT;
+    }
+    public function isInline(): bool
+    {
+        return $this->contentDisposition === self::DISPOSITION_INLINE;
+    }
+
+    public function withAttachment(?string $filename): self
+    {
+        $clone = clone $this;
+        $clone->setAttachment($filename);
+        return $clone;
+    }
+    public function withContentType(?string $contentType): self
+    {
+        $clone = clone $this;
+        $clone->setContentType($contentType);
+        return $clone;
+    }
+    public function withInline(): self
+    {
+        $clone = clone $this;
+        $clone->setInline();
+        return $clone;
+    }
+
+    public function setContentType(?string $contentType): void
+    {
+        $this->contentType = $contentType;
+        $this->setHeader(Header::CONTENT_TYPE, $contentType);
+    }
+    public function setInline(): void
     {
         $this->contentDisposition = self::DISPOSITION_INLINE;
         $this->setDispositionHeader();
-        return $this;
     }
-    public function setAttachment(?string $filename): self
+    final protected function setAttachment(?string $filename): void
     {
         $this->contentDisposition = self::DISPOSITION_ATTACHMENT;
         $this->fileName = $filename;
         $this->setDispositionHeader();
-        return $this;
     }
-    private function setDispositionHeader(): void
+    final protected function setDispositionHeader(): void
     {
         if ($this->contentDisposition === null) {
             return;
@@ -96,6 +122,14 @@ class FileBucket extends DataBucket
                 rawurlencode($this->fileName)
             )
             : $this->contentDisposition;
-        $this->setHeader('Content-Disposition', $headerBody);
+        $this->setHeader(Header::CONTENT_DISPOSITION, $headerBody);
+    }
+    private function contentType(?string $filename): ?string
+    {
+        if ($filename === null) {
+            return null;
+        }
+        $result = function_exists('mime_content_type') ? mime_content_type($filename) : null;
+        return is_string($result) ? $result : null;
     }
 }

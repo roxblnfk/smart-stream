@@ -4,26 +4,34 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream\Data;
 
+use Yiisoft\Http\Header;
+
 class RedirectBucket extends DataBucket
 {
     protected ?string $location = null;
 
-    protected const IS_FORMATABLE = false;
+    protected const IS_CONVERTABLE = false;
 
     public function __construct(string $location, int $code = 302)
     {
         parent::__construct('');
         $this->setLocation($location);
-        $this->setCode($code);
+        $this->setStatus($code);
     }
     public function getLocation(): ?string
     {
         return $this->location;
     }
-    public function setLocation(?string $location): self
+    public function withLocation(?string $location): self
+    {
+        $clone = clone $this;
+        $clone->setLocation($location);
+        return $clone;
+    }
+
+    protected function setLocation(?string $location): void
     {
         $this->location = $location;
-        $this->setHeader('Location', $this->location);
-        return $this;
+        $this->setHeader(Header::LOCATION, $this->location);
     }
 }

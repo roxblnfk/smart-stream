@@ -2,6 +2,8 @@
 
 namespace roxblnfk\SmartStream\Data;
 
+use Yiisoft\Http\Status;
+
 class DataBucket
 {
     /** @var mixed */
@@ -12,7 +14,7 @@ class DataBucket
     protected ?string $format = null;
     protected array $params = [];
 
-    protected const IS_FORMATABLE = true;
+    protected const IS_CONVERTABLE = true;
 
     public function __construct($data, string $format = null, array $params = [])
     {
@@ -39,34 +41,26 @@ class DataBucket
     {
         return $this->data;
     }
-    public function isFormatable(): bool
+    public function isConvertable(): bool
     {
-        return static::IS_FORMATABLE;
+        return static::IS_CONVERTABLE;
     }
     public function hasFormat(): bool
     {
-        return static::IS_FORMATABLE && $this->format !== null;
+        return static::IS_CONVERTABLE && $this->format !== null;
     }
 
-    public function setCode(?int $code = 200): self
+    public function withStatus(?int $code = Status::OK): self
     {
-        $this->code = $code;
-        return $this;
+        $clone = clone $this;
+        $clone->setStatus($code);
+        return $clone;
     }
-    public function setHeaders(array $headers = []): self
+    public function withHeader(string $name, string $value): self
     {
-        $this->headers = $headers;
-        return $this;
-    }
-    public function addHeaders(array $headers = []): self
-    {
-        $this->headers = [...$this->headers, ...$headers];
-        return $this;
-    }
-    public function setHeader(string $name, string $value): self
-    {
-        $this->headers[$name] = $value;
-        return $this;
+        $clone = clone $this;
+        $clone->setHeader($name, $value);
+        return $clone;
     }
     public function withFormat(?string $format, array $params = null): self
     {
@@ -74,12 +68,27 @@ class DataBucket
         $clone->setFormat($format, $params);
         return $clone;
     }
-    public function setFormat(?string $format, array $params = null): self
+    public function withoutHeader(string $name): self
+    {
+        $clone = clone $this;
+        unset($clone->headers[$name]);
+        return $clone;
+    }
+
+
+    protected function setHeader(string $name, string $value): void
+    {
+        $this->headers[$name] = $value;
+    }
+    protected function setFormat(?string $format, array $params): void
     {
         $this->format = $format;
         if ($params !== null) {
             $this->params = $params;
         }
-        return $this;
+    }
+    protected function setStatus(?int $code): void
+    {
+        $this->code = $code;
     }
 }

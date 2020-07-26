@@ -27,7 +27,7 @@ final class SimpleConverterMatcher implements ConverterMatcherInterface
 
     public function match(DataBucket $bucket): ?MatchingResult
     {
-        if (!$bucket->isFormatable()) {
+        if (!$bucket->isConvertable()) {
             return null;
         }
 
