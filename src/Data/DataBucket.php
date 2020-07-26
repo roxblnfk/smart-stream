@@ -20,6 +20,7 @@ class DataBucket
     {
         $this->data = $data;
         $this->format = $format;
+        $this->params = $params;
     }
     public function getCode(): ?int
     {
