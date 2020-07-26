@@ -9,7 +9,9 @@ use Psr\Container\ContainerInterface;
 use roxblnfk\SmartStream\Converter\JSONConverter;
 use roxblnfk\SmartStream\Converter\PrintRConverter;
 use roxblnfk\SmartStream\Converter\XMLConverter;
-use roxblnfk\SmartStream\ConverterMatcherInterface;use roxblnfk\SmartStream\Matching\SimpleConverterMatcher;
+use roxblnfk\SmartStream\ConverterMatcherInterface;
+use roxblnfk\SmartStream\Data\WebTemplateBucket;
+use roxblnfk\SmartStream\Matching\SimpleConverterMatcher;
 use roxblnfk\SmartStream\Matching\SimpleMatcherConfig;
 
 return [
@@ -19,7 +21,7 @@ return [
     SimpleMatcherConfig::class => static function (ContainerInterface $container) {
         return (new SimpleMatcherConfig())
             # Пользовательские конвертеры и DataBucket'ы
-            ->withFormat('html', MyWebViewConverter::class, 'text/html', [MyWebDataBucket::class])
+            ->withFormat('html', MyWebViewConverter::class, 'text/html', [WebTemplateBucket::class])
             ->withFormat('twig', TwigConverter::class, 'text/html', [TwigDataBucket::class])
 
             ->withFormat('json', JSONConverter::class, 'application/xml')
