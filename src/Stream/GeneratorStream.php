@@ -55,13 +55,13 @@ final class GeneratorStream implements StreamInterface
         if (!isset($this->stream)) {
             return null;
         }
-        $result = $this->stream;
-        unset($this->stream);
+        $this->stream;
+        $this->stream = null;
         $this->size = null;
         $this->caret = 0;
         $this->started = false;
         $this->readable = false;
-        return $result;
+        return null;
     }
 
     public function getSize(): ?int
@@ -101,7 +101,9 @@ final class GeneratorStream implements StreamInterface
 
     public function rewind(): void
     {
-        $this->stream->rewind();
+        if ($this->stream !== null) {
+            $this->stream->rewind();
+        }
         $this->caret = 0;
         $this->started = false;
     }

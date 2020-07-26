@@ -16,14 +16,21 @@ final class BucketStream implements StreamInterface
     private ConverterMatcherInterface $converterMatcher;
     private ?DataBucket $bucket;
     private ?GeneratorStream $stream = null;
-    private bool $calculated = false;
     private ?MatchingResult $matchedResult = null;
 
     public function __construct(ConverterMatcherInterface $converterMatcher, DataBucket $bucket)
     {
         $this->bucket = $bucket;
         $this->converterMatcher = $converterMatcher;
-        $this->prepareConverter();
+
+        // if should be converted
+        if ($bucket->isConvertable()) {
+            $result = $this->converterMatcher->match($this->bucket);
+            if ($result === null && $bucket->hasFormat()) {
+                throw new ConverterNotFoundException((string)$bucket->getFormat());
+            }
+            $this->matchedResult = $result;
+        }
     }
     public function __toString(): string
     {
@@ -44,9 +51,8 @@ final class BucketStream implements StreamInterface
     {
         $this->matchedResult = null;
         $this->stream = null;
-        $result = $this->bucket;
         $this->bucket = null;
-        return $result;
+        return null;
     }
     public function getSize(): ?int
     {
@@ -72,8 +78,6 @@ final class BucketStream implements StreamInterface
     {
         if ($this->stream !== null) {
             $this->stream->rewind();
-            $this->caret = 0;
-            $this->started = false;
         }
     }
     public function isWritable(): bool
@@ -164,20 +168,5 @@ final class BucketStream implements StreamInterface
         }
         $this->stream = new GeneratorStream($this->matchedResult->getConverter()->convert($this->bucket));
         return true;
-    }
-    private function prepareConverter(): void
-    {
-        if ($this->calculated) {
-            return;
-        }
-        // if should be converted
-        if ($this->bucket->isConvertable()) {
-            $result = $this->converterMatcher->match($this->bucket);
-            if ($result === null) {
-                throw new ConverterNotFoundException((string)$this->bucket->getFormat());
-            }
-            $this->matchedResult = $result;
-        }
-        $this->calculated = true;
     }
 }

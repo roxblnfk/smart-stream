@@ -71,16 +71,24 @@ class DataBucket
     public function withoutHeader(string $name): self
     {
         $clone = clone $this;
-        unset($clone->headers[$name]);
+        $clone->unsetHeader($name);
         return $clone;
     }
 
 
-    protected function setHeader(string $name, string $value): void
+    protected function unsetHeader(string $name): void
     {
-        $this->headers[$name] = $value;
+        unset($this->headers[$name]);
     }
-    protected function setFormat(?string $format, array $params): void
+    protected function setHeader(string $name, ?string $value): void
+    {
+        if ($value === null) {
+            $this->unsetHeader($name);
+        } else {
+            $this->headers[$name] = $value;
+        }
+    }
+    protected function setFormat(?string $format, ?array $params): void
     {
         $this->format = $format;
         if ($params !== null) {
