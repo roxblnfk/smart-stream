@@ -9,10 +9,15 @@ use Throwable;
 
 class ConverterNotFoundException extends RuntimeException
 {
-    private string $format;
-    public function __construct(string $format, string $message = '', int $code = 0, Throwable $previous = null)
+    private ?string $format;
+    public function __construct(?string $format, Throwable $previous = null)
     {
-        parent::__construct($message, $code, $previous);
         $this->format = $format;
+        $format = $format === null ? 'undefined' : "'{$format}'";
+        parent::__construct("Converter for {$format} format not found.", 0, $previous);
+    }
+    public function getFormat(): ?string
+    {
+        return $this->format;
     }
 }

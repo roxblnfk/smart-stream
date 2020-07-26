@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace roxblnfk\SmartStream;
 
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use roxblnfk\SmartStream\Data\DataBucket;
@@ -16,16 +15,16 @@ final class SmartStreamFactory
 {
     private StreamFactoryInterface $defaultFactory;
     private ConverterMatcherInterface $converterMatcher;
-    private string $defaultDataBucket;
+    private string $defaultBucketClass;
 
     public function __construct(
         StreamFactoryInterface $defaultFactory,
         ConverterMatcherInterface $converterMatcher,
-        string $defaultDataBucket = DataBucket::class
+        string $defaultBucketClass = DataBucket::class
     ) {
         $this->defaultFactory = $defaultFactory;
         $this->converterMatcher = $converterMatcher;
-        $this->defaultDataBucket = $defaultDataBucket;
+        $this->defaultBucketClass = $defaultBucketClass;
     }
 
     public function createStream($data, ?RequestInterface $request = null): StreamInterface
@@ -34,7 +33,7 @@ final class SmartStreamFactory
             return $this->defaultFactory->createStream($data);
         }
         if ($data instanceof \SplFileInfo) {
-            return $this->defaultFactory->createStreamFromFile($data->getPath());
+            return $this->defaultFactory->createStreamFromFile($data->getPathname());
         }
         if (is_resource($data)) {
             return $this->defaultFactory->createStreamFromResource($data);
@@ -45,6 +44,6 @@ final class SmartStreamFactory
         if ($data instanceof DataBucket) {
             return new BucketStream($this->converterMatcher->withRequest($request), $data);
         }
-        return new BucketStream($this->converterMatcher->withRequest($request), new $this->defaultDataBucket($data));
+        return new BucketStream($this->converterMatcher->withRequest($request), new $this->defaultBucketClass($data));
     }
 }

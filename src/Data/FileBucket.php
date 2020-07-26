@@ -74,7 +74,7 @@ class FileBucket extends DataBucket
         return $this->contentDisposition === self::DISPOSITION_INLINE;
     }
 
-    public function withAttachment(?string $filename): self
+    public function withAttachment(string $filename = null): self
     {
         $clone = clone $this;
         $clone->setAttachment($filename);

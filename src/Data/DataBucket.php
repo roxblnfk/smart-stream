@@ -12,29 +12,25 @@ class DataBucket
     /** @var string[] */
     protected array $headers = [];
     protected ?string $format = null;
-    protected array $params = [];
+    protected iterable $params = [];
 
     protected const IS_CONVERTABLE = true;
 
-    public function __construct($data, string $format = null, array $params = [])
+    public function __construct($data, string $format = null, iterable $params = [])
     {
         $this->data = $data;
         $this->format = $format;
         $this->params = $params;
     }
-    public function getCode(): ?int
+    public function getStatusCode(): ?int
     {
         return $this->code;
-    }
-    public function getHeaders(): array
-    {
-        return $this->headers;
     }
     public function getFormat(): ?string
     {
         return $this->format;
     }
-    public function getParams(): array
+    public function getParams(): iterable
     {
         return $this->params;
     }
@@ -51,7 +47,20 @@ class DataBucket
         return static::IS_CONVERTABLE && $this->format !== null;
     }
 
-    public function withStatus(?int $code = Status::OK): self
+    public function hasHeader(string $name): bool
+    {
+        return array_key_exists($name, $this->headers);
+    }
+    public function getHeaderLine(string $name): ?string
+    {
+        return $this->headers[$name] ?? null;
+    }
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function withStatusCode(?int $code = Status::OK): self
     {
         $clone = clone $this;
         $clone->setStatus($code);
@@ -76,7 +85,6 @@ class DataBucket
         return $clone;
     }
 
-
     protected function unsetHeader(string $name): void
     {
         unset($this->headers[$name]);
@@ -89,7 +97,7 @@ class DataBucket
             $this->headers[$name] = $value;
         }
     }
-    protected function setFormat(?string $format, ?array $params): void
+    protected function setFormat(?string $format, ?iterable $params): void
     {
         $this->format = $format;
         if ($params !== null) {

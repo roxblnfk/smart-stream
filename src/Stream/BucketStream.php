@@ -27,7 +27,7 @@ final class BucketStream implements StreamInterface
             $result = $this->converterMatcher->match($this->bucket);
             // if should be converted but no converter was found
             if ($result === null && $bucket->hasFormat()) {
-                throw new ConverterNotFoundException((string)$bucket->getFormat());
+                throw new ConverterNotFoundException($bucket->getFormat());
             }
             $this->matchedResult = $result;
         }

@@ -51,8 +51,8 @@ final class BucketStreamMiddleware implements MiddlewareInterface
         }
 
         // Update request
-        if ($bucket->getCode() !== null) {
-            $response = $response->withStatus($bucket->getCode());
+        if ($bucket->getStatusCode() !== null) {
+            $response = $response->withStatus($bucket->getStatusCode());
         }
         return $this->addHeaders($response, $bucket->getHeaders());
     }

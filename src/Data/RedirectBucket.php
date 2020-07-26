@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace roxblnfk\SmartStream\Data;
 
 use Yiisoft\Http\Header;
+use Yiisoft\Http\Status;
 
 class RedirectBucket extends DataBucket
 {
@@ -12,7 +13,7 @@ class RedirectBucket extends DataBucket
 
     protected const IS_CONVERTABLE = false;
 
-    public function __construct(string $location, int $code = 302)
+    public function __construct(string $location, int $code = Status::FOUND)
     {
         parent::__construct('');
         $this->setLocation($location);

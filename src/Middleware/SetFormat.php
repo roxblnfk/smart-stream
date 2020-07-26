@@ -28,11 +28,15 @@ final class SetFormat implements MiddlewareInterface
     {
         $response = $handler->handle($request);
         $stream = $response->getBody();
-        if ($stream instanceof BucketStream) {
-            $data = $stream->getBucket();
-            if ($data !== null && $data->isConvertable() and !$stream->hasBucketFormat() || $this->force) {
-                return $response->withBody($stream->withBucket($data->withFormat($this->format, $this->params)));
-            }
+        if (!$stream instanceof BucketStream) {
+            return $response;
+        }
+        $data = $stream->getBucket();
+        if ($data === null || !$data->isConvertable()) {
+            return $response;
+        }
+        if ((!$stream->hasBucketFormat() && !$stream->isRenderStarted()) || $this->force) {
+            return $response->withBody($stream->withBucket($data->withFormat($this->format, $this->params)));
         }
         return $response;
     }

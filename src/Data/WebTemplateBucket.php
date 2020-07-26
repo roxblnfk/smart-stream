@@ -8,31 +8,35 @@ class WebTemplateBucket extends DataBucket
 {
     private ?string $template = null;
     private ?string $layout = null;
-    private array $layoutData = [];
-    private array $defaultData = [];
+    private iterable $layoutData = [];
+    private iterable $commonData = [];
 
+    public function __construct(iterable $templateData, string $format = null, array $params = [])
+    {
+        parent::__construct($templateData, $format, $params);
+    }
     public function getTemplate(): ?string
     {
         return $this->template;
     }
-    public function getDefaultData(): array
+    public function getCommonData(): iterable
     {
-        return $this->defaultData;
+        return $this->commonData;
     }
     public function getLayout(): ?string
     {
         return $this->layout;
     }
-    public function getLayoutData(): array
+    public function getLayoutData(): iterable
     {
         return $this->layoutData;
     }
-    public function getTemplateData(): array
+    public function getTemplateData(): iterable
     {
         return $this->data;
     }
 
-    public function withLayout(string $layout, array $layoutData = []): self
+    public function withLayout(string $layout, iterable $layoutData = []): self
     {
         $clone = clone $this;
         $clone->layout = $layout;
@@ -45,22 +49,10 @@ class WebTemplateBucket extends DataBucket
         $clone->template = $template;
         return $clone;
     }
-    public function withAddedTemplateData(string $key, $value): self
+    public function withCommonData(iterable $defaultData): self
     {
         $clone = clone $this;
-        $clone->data[$key] = $value;
-        return $clone;
-    }
-    public function withDefaultData(array $defaultData): self
-    {
-        $clone = clone $this;
-        $clone->defaultData = $defaultData;
-        return $clone;
-    }
-    public function withAddedDefaultData(string $key, $value): self
-    {
-        $clone = clone $this;
-        $clone->defaultData[$key] = $value;
+        $clone->commonData = $defaultData;
         return $clone;
     }
 }
