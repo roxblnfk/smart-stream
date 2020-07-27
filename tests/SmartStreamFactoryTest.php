@@ -69,16 +69,23 @@ final class SmartStreamFactoryTest extends TestCase
         /** @var BucketStream $stream */
         $this->assertSame($bucket, $stream->getBucket());
     }
-    public function testCreateBucketStreamFromArray(): void
+    public function AnyTypeValueProvider(): array
+    {
+        return [[array()], [null], [true], [false], [42], [42.42], [new \stdClass()]];
+    }
+    /**
+     * @dataProvider AnyTypeValueProvider
+     */
+    public function testCreateBucketStreamFromAnyValue($data): void
     {
         $factory = $this->createFactory();
-        $data = [];
 
         $stream = $factory->createStream($data);
 
         $this->assertInstanceOf(BucketStream::class, $stream);
         /** @var BucketStream $stream */
         $this->assertInstanceOf(DataBucket::class, $stream->getBucket());
+        $this->assertSame($data, $stream->getBucket()->getData());
     }
     public function testCreateBucketStreamWithCustomBucket(): void
     {

@@ -22,6 +22,19 @@ class DataBucketTest extends BaseDataBucketTest
         $this->assertFalse($bucket->hasFormat());
     }
 
+    public function testGetHeaders(): void
+    {
+        $bucket = $this->createBucket();
+
+        $bucket = $bucket->withHeader('Custom-Header-1', 'custom value')
+                         ->withHeader('Custom-Header-2', 'custom value 2');
+
+        $this->assertSame(
+            ['Custom-Header-1' => 'custom value', 'Custom-Header-2' => 'custom value 2'],
+            $bucket->getHeaders()
+        );
+    }
+
     protected function createBucket(): DataBucket
     {
         return new DataBucket(self::BUCKET_DATA);

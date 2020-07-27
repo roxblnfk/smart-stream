@@ -12,7 +12,7 @@ use roxblnfk\SmartStream\Matching\SimpleMatcherConfig;
 
 class SimpleConverterMatcherTest extends TestCase
 {
-    # Immutability tests
+    # Immutability
 
     public function testWithRequestImmutability(): void
     {

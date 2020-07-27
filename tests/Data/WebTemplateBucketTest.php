@@ -29,7 +29,7 @@ class WebTemplateBucketTest extends BaseDataBucketTest
         $this->assertSame([], $bucket->getCommonData());
     }
 
-    # Immutability tests
+    # Immutability
 
     public function testWithLayoutImmutability(): void
     {

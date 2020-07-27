@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace roxblnfk\SmartStream\Tests\Data;
 
 use roxblnfk\SmartStream\Data\RedirectBucket;
+use Yiisoft\Http\Header;
 use Yiisoft\Http\Status;
 
-class RedirectBucketTest extends BaseDataBucketTest
+final class RedirectBucketTest extends BaseDataBucketTest
 {
     private const BUCKET_URL = '/';
 
@@ -22,11 +23,12 @@ class RedirectBucketTest extends BaseDataBucketTest
         $this->assertSame('', $bucket->getData());
         $this->assertFalse($bucket->isConvertable());
         $this->assertFalse($bucket->hasFormat());
+        $this->assertSame([Header::LOCATION => self::BUCKET_URL], $bucket->getHeaders());
         # RedirectBucket methods
         $this->assertSame(self::BUCKET_URL, $bucket->getLocation());
     }
 
-    # Immutability tests
+    # Immutability
 
     public function testWithLocationImmutability(): void
     {
@@ -38,6 +40,16 @@ class RedirectBucketTest extends BaseDataBucketTest
         $this->assertNotSame($bucket, $newBucket);
         $this->assertSame(self::BUCKET_URL, $bucket->getLocation());
         $this->assertSame($url, $newBucket->getLocation());
+    }
+
+    public function testWithNullLocation(): void
+    {
+        $bucket = $this->createBucket();
+
+        $bucket = $bucket->withLocation(null);
+
+        $this->assertSame([], $bucket->getHeaders());
+        $this->assertNull($bucket->getLocation());
     }
 
     protected function createBucket(): RedirectBucket

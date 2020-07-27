@@ -9,9 +9,9 @@ use roxblnfk\SmartStream\Stream\BucketStream;
 use roxblnfk\SmartStream\Tests\Support\DummyBucket;
 use roxblnfk\SmartStream\Tests\Support\NullMatcher;
 
-class StreamTest extends TestCase
+class BucketStreamTest extends TestCase
 {
-    # Immutability tests
+    # Immutability
 
     public function testWithBucketImmutability(): void
     {

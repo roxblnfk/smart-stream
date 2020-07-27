@@ -10,7 +10,7 @@ use roxblnfk\SmartStream\Tests\Support\DummyConverter;
 
 class SimpleMatcherConfigTest extends TestCase
 {
-    # Immutability tests
+    # Immutability
 
     public function testWithFormatImmutability(): void
     {

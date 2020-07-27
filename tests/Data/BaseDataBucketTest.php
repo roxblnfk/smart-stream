@@ -10,7 +10,7 @@ use Yiisoft\Http\Status;
 
 abstract class BaseDataBucketTest extends TestCase
 {
-    # Immutability tests
+    # Immutability
 
     public function testWithStatusCodeImmutability(): void
     {
@@ -64,6 +64,37 @@ abstract class BaseDataBucketTest extends TestCase
             $this->assertFalse($bucket->hasFormat());
             $this->assertTrue($newBucket->hasFormat());
         }
+    }
+
+    # Format
+
+    public function testWithNullFormat(): void
+    {
+        $bucket = $this->createBucket();
+
+        $bucket = $bucket->withFormat('dummy-format')->withFormat(null);
+
+        $this->assertNull($bucket->getFormat());
+        $this->assertFalse($bucket->hasFormat());
+    }
+    public function testWithFormatParams(): void
+    {
+        $bucket = $this->createBucket();
+        $params = ['key' => 'value'];
+
+        $bucket = $bucket->withFormat('dummy-format', $params);
+
+        $this->assertSame($params, $bucket->getParams());
+    }
+    public function testWithNullFormatParamsNotChanges(): void
+    {
+        $bucket = $this->createBucket();
+        $params = ['key' => 'value'];
+
+        $bucket = $bucket->withFormat('dummy-format', $params)->withFormat('new-format');
+
+        $this->assertSame($params, $bucket->getParams());
+        $this->assertSame('new-format', $bucket->getFormat());
     }
 
     abstract protected function createBucket(): DataBucket;
