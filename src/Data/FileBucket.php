@@ -21,15 +21,15 @@ class FileBucket extends DataBucket
      * FileBucket constructor.
      * @param string|resource|SplFileInfo $data
      * @param null|string $contentType
-     * @param null|string $filename
+     * @param null|string $fileName
      * @throws \Exception
      */
-    public function __construct($data, string $contentType = null, string $filename = null)
+    public function __construct($data, string $contentType = null, string $fileName = null)
     {
         switch (true) {
             case $data instanceof SplFileInfo:
-                $filename = $filename ?? $data->getFilename();
-                $contentType = $contentType ?? $this->contentType($filename);
+                $fileName = $fileName ?? $data->getFilename();
+                $contentType = $contentType ?? $this->fileContentType($data->getPathname());
                 parent::__construct($data);
                 break;
             case is_string($data):
@@ -37,20 +37,20 @@ class FileBucket extends DataBucket
                 parent::__construct($data);
                 break;
             default:
-                throw new \Exception('The $data parameter must be a resource, a string or an instance of SplFileInfo');
+                throw new \Exception('The $data parameter must be a resource, a string or an instance of SplFileInfo.');
         }
 
         if ($contentType !== null) {
             $this->setContentType($contentType);
         }
-        if ($filename !== null) {
-            $this->setAttachment($filename);
+        if ($fileName !== null) {
+            $this->setAttachment($fileName);
         }
     }
 
-    public static function createFromPath(string $filePath): self
+    public static function createFromPath(string $filePath, string $contentType = null, string $fileName = null): self
     {
-        return new static(new SplFileInfo($filePath));
+        return new static(new SplFileInfo($filePath), $contentType, $fileName);
     }
 
     public function getContentType(): ?string
@@ -103,10 +103,10 @@ class FileBucket extends DataBucket
         $this->contentDisposition = self::DISPOSITION_INLINE;
         $this->setDispositionHeader();
     }
-    final protected function setAttachment(?string $filename): void
+    final protected function setAttachment(?string $fileName): void
     {
         $this->contentDisposition = self::DISPOSITION_ATTACHMENT;
-        $this->fileName = $filename;
+        $this->fileName = $fileName;
         $this->setDispositionHeader();
     }
     final protected function setDispositionHeader(): void
@@ -124,12 +124,24 @@ class FileBucket extends DataBucket
             : $this->contentDisposition;
         $this->setHeader(Header::CONTENT_DISPOSITION, $headerBody);
     }
-    private function contentType(?string $filename): ?string
+    private function fileContentType(?string $filePath): ?string
     {
-        if ($filename === null) {
+        if ($filePath === null || !is_file($filePath) || !is_readable($filePath)) {
             return null;
         }
-        $result = function_exists('mime_content_type') ? mime_content_type($filename) : null;
-        return is_string($result) ? $result : null;
+        $result = null;
+        try {
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $result = finfo_file($finfo, $filePath);
+                if (is_string($result)) {
+                    return $result;
+                }
+            }
+            $result = $result ?? (function_exists('mime_content_type') ? mime_content_type($filePath) : null);
+            return is_string($result) ? $result : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

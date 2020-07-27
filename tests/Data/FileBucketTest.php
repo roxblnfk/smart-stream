@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace roxblnfk\SmartStream\Tests\Data;
 
 use roxblnfk\SmartStream\Data\FileBucket;
+use SplFileInfo;
 use Yiisoft\Http\Header;
 
 final class FileBucketTest extends BaseDataBucketTest
 {
     private const BUCKET_CONTENT = 'Default bucket content';
+    private const TEST_FILE_PATH = __DIR__ . '/../Support/DummyFile.php';
 
     public function testInitialState(): void
     {
@@ -48,6 +50,69 @@ final class FileBucketTest extends BaseDataBucketTest
 
         $this->assertNull($bucket->getContentType());
         $this->assertFalse($bucket->hasHeader(Header::CONTENT_TYPE));
+    }
+
+    # Create from
+
+    public function testCreateFromPath(): void
+    {
+        $bucket = FileBucket::createFromPath(self::TEST_FILE_PATH, 'text/markdown', 'readme.md');
+
+        $this->assertSame('readme.md', $bucket->getFileName());
+        $this->assertSame('text/markdown', $bucket->getContentType());
+    }
+    public function testCreateFromString(): void
+    {
+        $content = 'Content.';
+        $bucket = new FileBucket($content);
+
+        $this->assertSame($content, $bucket->getData());
+        $this->assertNull($bucket->getFileName());
+        $this->assertNull($bucket->getContentType());
+    }
+    public function testCreateFromStringWithType(): void
+    {
+        $content = 'Content.';
+        $bucket = new FileBucket($content, 'application/xml');
+
+        $this->assertSame($content, $bucket->getData());
+        $this->assertNull($bucket->getFileName());
+        $this->assertSame('application/xml', $bucket->getContentType());
+    }
+    public function testCreateFromStringWithFileName(): void
+    {
+        $content = 'Content.';
+        $bucket = new FileBucket($content, null, 'readme.md');
+
+        $this->assertSame($content, $bucket->getData());
+        $this->assertSame('readme.md', $bucket->getFileName());
+        $this->assertNull($bucket->getContentType());
+    }
+    public function testCreateFromResource(): void
+    {
+        $resource = fopen(self::TEST_FILE_PATH, 'r');
+        try {
+            $bucket = new FileBucket($resource);
+
+            $this->assertSame($resource, $bucket->getData());
+            $this->assertNull($bucket->getFileName());
+            $this->assertNull($bucket->getContentType());
+        } finally {
+            fclose($resource);
+        }
+    }
+    public function testCreateFromFileInfo(): void
+    {
+        $file = new SplFileInfo(self::TEST_FILE_PATH);
+        $bucket = new FileBucket($file);
+
+        $this->assertSame($file, $bucket->getData());
+        $this->assertSame('DummyFile.php', $bucket->getFileName());
+        if (function_exists('finfo_open') || function_exists('mime_content_type')) {
+            $this->assertSame('text/plain', $bucket->getContentType());
+        } else {
+            $this->markTestSkipped('Can not get MIME type.');
+        }
     }
 
     # Immutability
