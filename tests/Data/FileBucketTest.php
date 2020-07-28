@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream\Tests\Data;
 
+use InvalidArgumentException;
 use roxblnfk\SmartStream\Data\FileBucket;
 use SplFileInfo;
 use Yiisoft\Http\Header;
@@ -113,6 +114,21 @@ final class FileBucketTest extends BaseDataBucketTest
         } else {
             $this->markTestSkipped('Can not get MIME type.');
         }
+    }
+    public function testCreateFromUnsupportedType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new FileBucket(new \DateTime());
+    }
+    public function testCreateFromNotExistingFile(): void
+    {
+        $file = __DIR__ . '/undefined.file';
+
+        $bucket = FileBucket::createFromPath($file);
+
+        $this->assertSame('undefined.file', $bucket->getFileName());
+        $this->assertNull($bucket->getContentType());
     }
 
     # Immutability

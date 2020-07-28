@@ -2,6 +2,7 @@
 
 namespace roxblnfk\SmartStream\Data;
 
+use InvalidArgumentException;
 use SplFileInfo;
 use Yiisoft\Http\Header;
 
@@ -37,7 +38,9 @@ class FileBucket extends DataBucket
                 parent::__construct($data);
                 break;
             default:
-                throw new \Exception('The $data parameter must be a resource, a string or an instance of SplFileInfo.');
+                throw new InvalidArgumentException(
+                    'The $data parameter must be a resource, a string or an instance of SplFileInfo.'
+                );
         }
 
         if ($contentType !== null) {
@@ -93,12 +96,12 @@ class FileBucket extends DataBucket
         return $clone;
     }
 
-    public function setContentType(?string $contentType): void
+    protected function setContentType(?string $contentType): void
     {
         $this->contentType = $contentType;
         $this->setHeader(Header::CONTENT_TYPE, $contentType);
     }
-    public function setInline(): void
+    protected function setInline(): void
     {
         $this->contentDisposition = self::DISPOSITION_INLINE;
         $this->setDispositionHeader();
@@ -111,9 +114,6 @@ class FileBucket extends DataBucket
     }
     final protected function setDispositionHeader(): void
     {
-        if ($this->contentDisposition === null) {
-            return;
-        }
         $headerBody = ($this->contentDisposition === self::DISPOSITION_ATTACHMENT && $this->fileName !== null)
             ? sprintf(
                 '%s; filename="%s"; filename*=UTF-8\'\'%s',
