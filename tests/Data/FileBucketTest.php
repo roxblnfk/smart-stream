@@ -125,10 +125,17 @@ final class FileBucketTest extends BaseDataBucketTest
     {
         $file = __DIR__ . '/undefined.file';
 
-        $bucket = FileBucket::createFromPath($file);
+        $this->expectException(InvalidArgumentException::class);
 
-        $this->assertSame('undefined.file', $bucket->getFileName());
-        $this->assertNull($bucket->getContentType());
+        $bucket = FileBucket::createFromPath($file);
+    }
+    public function testCreateFromFolder(): void
+    {
+        $file = __DIR__;
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $bucket = FileBucket::createFromPath($file);
     }
 
     # Immutability
@@ -167,6 +174,16 @@ final class FileBucketTest extends BaseDataBucketTest
         $this->assertFalse($bucket->isInline());
         $this->assertTrue($newBucket->hasDisposition());
         $this->assertTrue($newBucket->isInline());
+    }
+    public function testWithoutDispositionImmutability(): void
+    {
+        $bucket = $this->createBucket()->withInline();
+
+        $newBucket = $bucket->withoutDisposition();
+
+        $this->assertNotSame($bucket, $newBucket);
+        $this->assertTrue($bucket->hasDisposition());
+        $this->assertFalse($newBucket->hasDisposition());
     }
 
     # Disposition type

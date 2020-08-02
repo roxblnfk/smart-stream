@@ -29,6 +29,9 @@ class FileBucket extends DataBucket
     {
         switch (true) {
             case $data instanceof SplFileInfo:
+                if (!$data->isFile()) {
+                    throw new InvalidArgumentException('File does not exist or is not a file.');
+                }
                 $fileName = $fileName ?? $data->getFilename();
                 $contentType = $contentType ?? $this->fileContentType($data->getPathname());
                 parent::__construct($data);
@@ -93,6 +96,13 @@ class FileBucket extends DataBucket
     {
         $clone = clone $this;
         $clone->setInline();
+        return $clone;
+    }
+    public function withoutDisposition(): self
+    {
+        $clone = clone $this;
+        $clone->contentDisposition = null;
+        $clone->setDispositionHeader();
         return $clone;
     }
 

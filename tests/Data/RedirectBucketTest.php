@@ -28,6 +28,16 @@ final class RedirectBucketTest extends BaseDataBucketTest
         $this->assertSame(self::BUCKET_URL, $bucket->getLocation());
     }
 
+    public function testWithNullLocation(): void
+    {
+        $bucket = $this->createBucket();
+
+        $bucket = $bucket->withLocation(null);
+
+        $this->assertSame([], $bucket->getHeaders());
+        $this->assertNull($bucket->getLocation());
+    }
+
     # Immutability
 
     public function testWithLocationImmutability(): void
@@ -40,16 +50,6 @@ final class RedirectBucketTest extends BaseDataBucketTest
         $this->assertNotSame($bucket, $newBucket);
         $this->assertSame(self::BUCKET_URL, $bucket->getLocation());
         $this->assertSame($url, $newBucket->getLocation());
-    }
-
-    public function testWithNullLocation(): void
-    {
-        $bucket = $this->createBucket();
-
-        $bucket = $bucket->withLocation(null);
-
-        $this->assertSame([], $bucket->getHeaders());
-        $this->assertNull($bucket->getLocation());
     }
 
     protected function createBucket(): RedirectBucket
