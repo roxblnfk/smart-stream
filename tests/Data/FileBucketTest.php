@@ -109,11 +109,6 @@ final class FileBucketTest extends BaseDataBucketTest
 
         $this->assertSame($file, $bucket->getData());
         $this->assertSame('DummyFile.php', $bucket->getFileName());
-        if (function_exists('finfo_open') || function_exists('mime_content_type')) {
-            $this->assertSame('text/plain', $bucket->getContentType());
-        } else {
-            $this->markTestSkipped('Can not get MIME type.');
-        }
     }
     public function testCreateFromUnsupportedType(): void
     {
@@ -136,6 +131,27 @@ final class FileBucketTest extends BaseDataBucketTest
         $this->expectException(InvalidArgumentException::class);
 
         $bucket = FileBucket::createFromPath($file);
+    }
+
+    # Content type
+
+    public function testWithAutoContentTypeFromFileContent(): void
+    {
+        $bucket = FileBucket::createFromPath(self::TEST_FILE_PATH);
+
+        $newBucket = $bucket->withAutoContentType();
+
+        $this->assertNull($bucket->getContentType());
+        $this->assertSame('text/plain', $newBucket->getContentType());
+    }
+    public function testWithAutoContentTypeFromBuffer(): void
+    {
+        $bucket = new FileBucket('Just string content');
+
+        $newBucket = $bucket->withAutoContentType();
+
+        $this->assertNull($bucket->getContentType());
+        $this->assertSame('text/plain', $newBucket->getContentType());
     }
 
     # Immutability
@@ -184,6 +200,16 @@ final class FileBucketTest extends BaseDataBucketTest
         $this->assertNotSame($bucket, $newBucket);
         $this->assertTrue($bucket->hasDisposition());
         $this->assertFalse($newBucket->hasDisposition());
+    }
+    public function testWithAutoContentTypeImmutability(): void
+    {
+        $bucket = $this->createBucket()->withContentType('test');
+
+        $newBucket = $bucket->withAutoContentType();
+
+        $this->assertNotSame($bucket, $newBucket);
+        $this->assertSame('test', $bucket->getContentType());
+        $this->assertNotSame('test', $newBucket->getContentType());
     }
 
     # Disposition type

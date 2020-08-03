@@ -33,7 +33,7 @@ class FileBucket extends DataBucket
                     throw new InvalidArgumentException('File does not exist or is not a file.');
                 }
                 $fileName = $fileName ?? $data->getFilename();
-                $contentType = $contentType ?? $this->fileContentType($data->getPathname());
+                // $contentType = $contentType ?? $this->fileContentType($data->getPathname());
                 parent::__construct($data);
                 break;
             case is_string($data):
@@ -105,6 +105,18 @@ class FileBucket extends DataBucket
         $clone->setDispositionHeader();
         return $clone;
     }
+    public function withAutoContentType(): self
+    {
+        $clone = clone $this;
+        $type = null;
+        if ($clone->data instanceof SplFileInfo) {
+            $type = $clone->fileContentType($clone->data->getPathname());
+        } elseif (is_string($clone->data)) {
+            $type = $clone->bufferContentType($clone->data);
+        }
+        $clone->setContentType($type);
+        return $clone;
+    }
 
     protected function setContentType(?string $contentType): void
     {
@@ -134,24 +146,30 @@ class FileBucket extends DataBucket
             : $this->contentDisposition;
         $this->setHeader(Header::CONTENT_DISPOSITION, $headerBody);
     }
-    private function fileContentType(?string $filePath): ?string
+    private function fileContentType(string $filePath): ?string
     {
-        if ($filePath === null || !is_file($filePath) || !is_readable($filePath)) {
+        if (!is_file($filePath) || !is_readable($filePath)) {
             return null;
         }
-        $result = null;
-        try {
-            if (function_exists('finfo_open')) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $result = finfo_file($finfo, $filePath);
-                if (is_string($result)) {
-                    return $result;
-                }
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $result = finfo_file($finfo, $filePath);
+            if (is_string($result)) {
+                return $result;
             }
-            $result = $result ?? (function_exists('mime_content_type') ? mime_content_type($filePath) : null);
-            return is_string($result) ? $result : null;
-        } catch (\Throwable $e) {
-            return null;
         }
+        $result = $result ?? (function_exists('mime_content_type') ? mime_content_type($filePath) : null);
+        return is_string($result) ? $result : null;
+    }
+    private function bufferContentType(string $buffer): ?string
+    {
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $result = finfo_buffer($finfo, $buffer);
+            if (is_string($result)) {
+                return $result;
+            }
+        }
+        return null;
     }
 }
