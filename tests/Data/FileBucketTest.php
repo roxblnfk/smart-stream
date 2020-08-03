@@ -122,7 +122,7 @@ final class FileBucketTest extends BaseDataBucketTest
 
         $this->expectException(InvalidArgumentException::class);
 
-        $bucket = FileBucket::createFromPath($file);
+        FileBucket::createFromPath($file);
     }
     public function testCreateFromFolder(): void
     {
@@ -130,7 +130,7 @@ final class FileBucketTest extends BaseDataBucketTest
 
         $this->expectException(InvalidArgumentException::class);
 
-        $bucket = FileBucket::createFromPath($file);
+        FileBucket::createFromPath($file);
     }
 
     # Content type
