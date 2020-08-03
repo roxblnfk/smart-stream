@@ -16,7 +16,7 @@ final class GeneratorStream implements StreamInterface
 
     private ?Generator $stream;
 
-    private bool $readable;
+    private bool $readable = true;
 
     private ?int $size = null;
 
@@ -27,7 +27,6 @@ final class GeneratorStream implements StreamInterface
     public function __construct(Generator $body)
     {
         $this->stream = $body;
-        $this->readable = true;
     }
 
     public function __toString(): string
@@ -45,14 +44,14 @@ final class GeneratorStream implements StreamInterface
 
     public function close(): void
     {
-        if (isset($this->stream)) {
+        if ($this->stream !== null) {
             $this->detach();
         }
     }
 
     public function detach()
     {
-        if (!isset($this->stream)) {
+        if ($this->stream === null) {
             return null;
         }
         $this->stream;
@@ -70,7 +69,7 @@ final class GeneratorStream implements StreamInterface
             return $this->size;
         }
 
-        if (!isset($this->stream)) {
+        if ($this->stream === null) {
             return null;
         }
 
@@ -94,9 +93,7 @@ final class GeneratorStream implements StreamInterface
 
     public function seek($offset, $whence = \SEEK_SET): void
     {
-        if (!$this->isSeekable()) {
-            throw new \RuntimeException('Stream is not seekable');
-        }
+        throw new \RuntimeException('Stream is not seekable');
     }
 
     public function rewind(): void
@@ -157,7 +154,7 @@ final class GeneratorStream implements StreamInterface
 
     public function getContents(): string
     {
-        if (!isset($this->stream)) {
+        if ($this->stream === null) {
             throw new \RuntimeException('Unable to read stream contents');
         }
         $content = '';
@@ -169,7 +166,7 @@ final class GeneratorStream implements StreamInterface
 
     public function getMetadata($key = null)
     {
-        if (!isset($this->stream)) {
+        if ($this->stream === null) {
             return $key ? null : [];
         }
 
