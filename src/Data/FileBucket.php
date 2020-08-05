@@ -151,15 +151,7 @@ class FileBucket extends DataBucket
         if (!is_file($filePath) || !is_readable($filePath)) {
             return null;
         }
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $result = finfo_file($finfo, $filePath);
-            if (is_string($result)) {
-                return $result;
-            }
-        }
-        $result = $result ?? (function_exists('mime_content_type') ? mime_content_type($filePath) : null);
-        return is_string($result) ? $result : null;
+        return function_exists('mime_content_type') ? mime_content_type($filePath) : null;
     }
     private function bufferContentType(string $buffer): ?string
     {
