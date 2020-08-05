@@ -12,6 +12,6 @@ final class DummyConverter implements ConverterInterface
 {
     public function convert(DataBucket $data): Generator
     {
-        yield $data;
+        yield $data->getData();
     }
 }

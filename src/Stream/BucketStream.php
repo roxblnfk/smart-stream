@@ -10,6 +10,7 @@ use roxblnfk\SmartStream\ConverterMatcherInterface;
 use roxblnfk\SmartStream\Data\DataBucket;
 use roxblnfk\SmartStream\Exception\ConverterNotFoundException;
 use roxblnfk\SmartStream\Matching\MatchingResult;
+use RuntimeException;
 
 final class BucketStream implements StreamInterface
 {
@@ -64,6 +65,9 @@ final class BucketStream implements StreamInterface
     }
     public function eof(): bool
     {
+        if ($this->bucket === null) {
+            return true;
+        }
         return $this->stream === null ? false : $this->stream->eof();
     }
     public function isSeekable(): bool
@@ -72,7 +76,7 @@ final class BucketStream implements StreamInterface
     }
     public function seek($offset, $whence = \SEEK_SET): void
     {
-        throw new \RuntimeException('Stream is not seekable.');
+        throw new RuntimeException('Stream is not seekable.');
     }
     public function rewind(): void
     {
@@ -86,7 +90,7 @@ final class BucketStream implements StreamInterface
     }
     public function write($string): int
     {
-        throw new \RuntimeException('Cannot write to a non-writable stream.');
+        throw new RuntimeException('Cannot write to a non-writable stream.');
     }
     public function isReadable(): bool
     {
@@ -99,17 +103,28 @@ final class BucketStream implements StreamInterface
     public function read($length): string
     {
         if (!$this->isReadable()) {
-            throw new \RuntimeException('Stream should be rendered.');
+            throw new RuntimeException('Stream should be rendered.');
         }
         # read generator stream
         return $this->stream->read($length);
     }
     public function getContents(): string
     {
-        return $this->read(PHP_INT_MAX);
+        if ($this->bucket === null) {
+            throw new \RuntimeException('Unable to read stream contents');
+        }
+        $content = '';
+        while (!$this->eof()) {
+            $content .= $this->read(PHP_INT_MAX);
+        }
+        return $content;
     }
     public function getMetadata($key = null)
     {
+        if ($this->bucket === null) {
+            return $key ? null : [];
+        }
+
         $meta = [
             'seekable' => $this->isSeekable(),
             'eof' => $this->eof(),

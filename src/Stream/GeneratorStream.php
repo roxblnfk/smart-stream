@@ -61,15 +61,7 @@ final class GeneratorStream implements StreamInterface
 
     public function getSize(): ?int
     {
-        if (null !== $this->size) {
-            return $this->size;
-        }
-
-        if ($this->stream === null) {
-            return null;
-        }
-
-        return null;
+        return $this->size;
     }
 
     public function tell(): int
