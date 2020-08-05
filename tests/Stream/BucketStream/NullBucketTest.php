@@ -100,13 +100,13 @@ class NullBucketTest extends BucketStreamTest
     {
         $stream = $this->createStream();
 
-        $this->assertFalse($stream->hasBucketFormat());
+        $this->assertFalse($stream->hasMatchedFormat());
     }
     public function testGetMatchedFormat(): void
     {
         $stream = $this->createStream();
 
-        $format = $stream->getBucketFormat();
+        $format = $stream->getMatchedFormat();
 
         $this->assertNull($format);
     }

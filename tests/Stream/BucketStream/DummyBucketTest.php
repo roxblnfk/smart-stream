@@ -6,11 +6,13 @@ namespace roxblnfk\SmartStream\Tests\Stream\BucketStream;
 
 use roxblnfk\SmartStream\ConverterInterface;
 use roxblnfk\SmartStream\Data\DataBucket;
+use roxblnfk\SmartStream\Exception\ConverterNotFoundException;
 use roxblnfk\SmartStream\Matching\MatchingResult;
 use roxblnfk\SmartStream\Stream\BucketStream;
 use roxblnfk\SmartStream\Tests\Stream\BucketStreamTest;
 use roxblnfk\SmartStream\Tests\Support\DummyConverter;
 use roxblnfk\SmartStream\Tests\Support\MatcherWithDummyConverter;
+use RuntimeException;
 
 class DummyBucketTest extends BucketStreamTest
 {
@@ -31,6 +33,17 @@ class DummyBucketTest extends BucketStreamTest
 
         // DummyConverter
         $this->assertSame(static::DEFAULT_CONTENT_RESULT, $result1);
+    }
+
+    public function testRewindAfterReadableCheck(): void
+    {
+        $stream = $this->createStream();
+        $stream->isReadable();
+
+        $stream->rewind();
+
+        # no error
+        $this->assertSame(0, $stream->tell());
     }
 
     # BucketStream methods
@@ -67,13 +80,13 @@ class DummyBucketTest extends BucketStreamTest
     {
         $stream = $this->createStream();
 
-        $this->assertTrue($stream->hasBucketFormat());
+        $this->assertTrue($stream->hasMatchedFormat());
     }
     public function testGetMatchedFormat(): void
     {
         $stream = $this->createStream();
 
-        $format = $stream->getBucketFormat();
+        $format = $stream->getMatchedFormat();
 
         $this->assertSame(MatcherWithDummyConverter::FORMAT_NAME, $format);
     }
@@ -101,6 +114,18 @@ class DummyBucketTest extends BucketStreamTest
         $this->assertInstanceOf(DummyConverter::class, $result->getConverter());
         $this->assertSame(MatcherWithDummyConverter::FORMAT_NAME, $result->getFormat());
         $this->assertNull($result->getMimeType());
+    }
+
+    # No converter cases
+
+    public function testCreateWithUnsupportedFormat(): void
+    {
+        $this->expectException(ConverterNotFoundException::class);
+
+        new BucketStream(
+            new MatcherWithDummyConverter(),
+            (new DataBucket(static::DEFAULT_CONTENT_RESULT))->withFormat('unsupported-format')
+        );
     }
 
     protected function createStream(): BucketStream
