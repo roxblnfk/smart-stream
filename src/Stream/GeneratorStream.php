@@ -32,10 +32,6 @@ final class GeneratorStream implements StreamInterface
     public function __toString(): string
     {
         try {
-            if ($this->isSeekable()) {
-                $this->seek(0);
-            }
-
             return $this->getContents();
         } catch (\Exception $e) {
             return '';
@@ -112,10 +108,7 @@ final class GeneratorStream implements StreamInterface
 
     public function write($string): int
     {
-        if (!$this->isWritable()) {
-            throw new \RuntimeException('Cannot write to a non-writable stream');
-        }
-        return 0;
+        throw new \RuntimeException('Cannot write to a non-writable stream');
     }
 
     public function isReadable(): bool

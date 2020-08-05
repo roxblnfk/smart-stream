@@ -26,11 +26,24 @@ class GeneratorStreamTest extends TestCase
     public function testDetach(): void
     {
         $stream = $this->createStream(self::DEFAULT_SEQUENCE);
-        $stream->detach();
+        $result = $stream->detach();
 
         $this->assertFalse($stream->isReadable());
         $this->assertTrue($stream->eof());
         $this->assertNull($stream->getSize());
+        $this->assertNull($result);
+    }
+    public function testDetachAfterDetach(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+        $stream->detach();
+        # no error
+        $result = $stream->detach();
+
+        $this->assertFalse($stream->isReadable());
+        $this->assertTrue($stream->eof());
+        $this->assertNull($stream->getSize());
+        $this->assertNull($result);
     }
     public function testGetSize(): void
     {
@@ -148,6 +161,15 @@ class GeneratorStreamTest extends TestCase
         $this->assertSame('0', $result1);
         $this->assertSame('foo', $result2);
     }
+    public function testReadAfterDetach(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+        $stream->detach();
+
+        $this->expectException(RuntimeException::class);
+
+        $stream->read(4);
+    }
     public function testReadAtTheEnd(): void
     {
         $stream = $this->createStream(self::DEFAULT_SEQUENCE);
@@ -165,6 +187,15 @@ class GeneratorStreamTest extends TestCase
 
         $this->assertSame(self::DEFAULT_RESULT, $result);
     }
+    public function testGetContentsAfterDetach(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+        $stream->detach();
+
+        $this->expectException(RuntimeException::class);
+
+        $stream->getContents(4);
+    }
     public function testToString(): void
     {
         $stream = $this->createStream(self::DEFAULT_SEQUENCE);
@@ -172,6 +203,49 @@ class GeneratorStreamTest extends TestCase
         $result = (string)$stream;
 
         $this->assertSame(self::DEFAULT_RESULT, $result);
+    }
+    public function testToStringAfterDetach(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+        $stream->detach();
+
+        $result = (string)$stream;
+
+        $this->assertSame('', $result);
+    }
+    public function testGetMeta(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+
+        $result = $stream->getMetadata();
+
+        $this->assertIsArray($result);
+    }
+    public function testGetMetaByKey(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+
+        $result = $stream->getMetadata('eof');
+
+        $this->assertSame($stream->eof(), $result);
+    }
+    public function testGetMetadataAfterDetach(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+        $stream->detach();
+
+        $result = $stream->getMetadata();
+
+        $this->assertSame([], $result);
+    }
+    public function testGetMetadataByKeyAfterDetach(): void
+    {
+        $stream = $this->createStream(self::DEFAULT_SEQUENCE);
+        $stream->detach();
+
+        $result = $stream->getMetadata('eof');
+
+        $this->assertNull($result);
     }
 
     private function createStream(iterable $sequence): GeneratorStream
