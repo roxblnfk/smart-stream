@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream\Tests\Stream;
 
-use PHPUnit\Framework\TestCase;
 use roxblnfk\SmartStream\Data\DataBucket;
 use roxblnfk\SmartStream\Stream\BucketStream;
 use roxblnfk\SmartStream\Tests\Support\DummyBucket;
-use roxblnfk\SmartStream\Tests\Support\MatcherWithDummyConverter;
-use roxblnfk\SmartStream\Tests\Support\NullMatcher;
 use RuntimeException;
 
-class BucketStreamTest extends BaseStreamTest
+abstract class BucketStreamTest extends BaseStreamTest
 {
     # Immutability
 
@@ -27,6 +24,8 @@ class BucketStreamTest extends BaseStreamTest
         $this->assertNotSame($bucket, $stream->getBucket());
         $this->assertSame($bucket, $newStream->getBucket());
     }
+
+    # Base stream cases
 
     public function testGetSize(): void
     {
@@ -96,41 +95,36 @@ class BucketStreamTest extends BaseStreamTest
 
         $stream->write('test');
     }
-    public function testTellAfterReading(): void
+
+    # BucketStream methods
+
+    abstract public function testHasConverter(): void;
+    abstract public function testGetConverter(): void;
+    abstract public function testHasBucketFormat(): void;
+    abstract public function testGetBucketFormat(): void;
+    abstract public function testHasMatchedFormat(): void;
+    abstract public function testGetMatchedFormat(): void;
+    abstract public function testIsRenderStarted(): void;
+    abstract public function testIsRenderStartedAfterReadableCheck(): void;
+    abstract public function testGetMatchedResult(): void;
+
+    public function testGetBucket(): void
     {
         $stream = $this->createStream();
-        $stream->read(1);
 
-        $this->assertSame(strlen(static::DEFAULT_CONTENT_RESULT), $stream->tell());
+        $bucket = $stream->getBucket();
+
+        $this->assertInstanceOf(DataBucket::class, $bucket);
     }
-    public function testRead(): void
+    public function testGetBucketAfterDetach(): void
     {
         $stream = $this->createStream();
 
-        $result1 = $stream->read(2);
-
-        // DummyConverter
-        $this->assertSame(static::DEFAULT_CONTENT_RESULT, $result1);
-    }
-    public function testGetContentsAfterDetach(): void
-    {
-        $stream = $this->createStream();
         $stream->detach();
+        $bucket = $stream->getBucket();
 
-        $this->expectException(RuntimeException::class);
-
-        $stream->getContents();
+        $this->assertNull($bucket);
     }
 
-    protected function createNullStream(): BucketStream
-    {
-        return new BucketStream(new NullMatcher(), new DummyBucket());
-    }
-    protected function createStream(): BucketStream
-    {
-        return new BucketStream(
-            new MatcherWithDummyConverter(),
-            (new DataBucket(static::DEFAULT_CONTENT_RESULT))->withFormat(MatcherWithDummyConverter::FORMAT_NAME)
-        );
-    }
+    abstract protected function createStream(): BucketStream;
 }

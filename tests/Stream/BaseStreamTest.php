@@ -91,9 +91,9 @@ abstract class BaseStreamTest extends TestCase
     }
     abstract public function testIsSeekable(): void;
     abstract public function testSeek(): void;
-    abstract public function testRewindOnInit();
-    abstract public function testRewindAfterRead();
-    abstract public function testIsWritable();
+    abstract public function testRewindOnInit(): void;
+    abstract public function testRewindAfterRead(): void;
+    abstract public function testIsWritable(): void;
     abstract public function testWrite(): void;
     public function testIsReadable(): void
     {

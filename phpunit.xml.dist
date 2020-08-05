@@ -6,7 +6,7 @@
          colors="true"
          verbose="true"
          bootstrap="vendor/autoload.php"
-         failOnRisky="true"
+         failOnRisky="false"
          failOnWarning="true"
 >
     <php>
