@@ -113,7 +113,7 @@ class DummyBucketTest extends BucketStreamTest
         $this->assertInstanceOf(MatchingResult::class, $result);
         $this->assertInstanceOf(DummyConverter::class, $result->getConverter());
         $this->assertSame(MatcherWithDummyConverter::FORMAT_NAME, $result->getFormat());
-        $this->assertNull($result->getMimeType());
+        $this->assertSame(MatcherWithDummyConverter::MIME, $result->getMimeType());
     }
 
     # No converter cases

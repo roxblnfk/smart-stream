@@ -91,11 +91,7 @@ final class BucketStream implements StreamInterface
     }
     public function isReadable(): bool
     {
-        if ($this->matchedResult === null) {
-            return false;
-        }
-        $this->initConverter();
-        return $this->stream === null ? false : $this->stream->isReadable();
+        return $this->initConverter() ? $this->stream->isReadable() : false;
     }
     public function read($length): string
     {
@@ -108,7 +104,7 @@ final class BucketStream implements StreamInterface
     public function getContents(): string
     {
         if ($this->bucket === null) {
-            throw new \RuntimeException('Unable to read stream contents');
+            throw new RuntimeException('Unable to read stream contents.');
         }
         $content = '';
         while (!$this->eof()) {

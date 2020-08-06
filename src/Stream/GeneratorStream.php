@@ -6,6 +6,7 @@ namespace roxblnfk\SmartStream\Stream;
 
 use Generator;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 
 final class GeneratorStream implements StreamInterface
 {
@@ -81,7 +82,7 @@ final class GeneratorStream implements StreamInterface
 
     public function seek($offset, $whence = \SEEK_SET): void
     {
-        throw new \RuntimeException('Stream is not seekable');
+        throw new RuntimeException('Stream is not seekable');
     }
 
     public function rewind(): void
@@ -100,7 +101,7 @@ final class GeneratorStream implements StreamInterface
 
     public function write($string): int
     {
-        throw new \RuntimeException('Cannot write to a non-writable stream');
+        throw new RuntimeException('Cannot write to a non-writable stream');
     }
 
     public function isReadable(): bool
@@ -111,10 +112,10 @@ final class GeneratorStream implements StreamInterface
     public function read($length): string
     {
         if (!$this->readable) {
-            throw new \RuntimeException('Cannot read from non-readable stream');
+            throw new RuntimeException('Cannot read from non-readable stream');
         }
         if ($this->eof()) {
-            throw new \RuntimeException('Cannot read from ended stream');
+            throw new RuntimeException('Cannot read from ended stream');
         }
         if (!$this->started) {
             $this->started = true;
@@ -140,7 +141,7 @@ final class GeneratorStream implements StreamInterface
     public function getContents(): string
     {
         if ($this->stream === null) {
-            throw new \RuntimeException('Unable to read stream contents');
+            throw new RuntimeException('Unable to read stream contents.');
         }
         $content = '';
         while (!$this->eof()) {

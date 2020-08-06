@@ -12,6 +12,7 @@ use roxblnfk\SmartStream\Matching\MatchingResult;
 final class MatcherWithDummyConverter implements ConverterMatcherInterface
 {
     public const FORMAT_NAME = 'dummy-format';
+    public const MIME = 'text/dummy-text';
     public function withRequest(?RequestInterface $request): ConverterMatcherInterface
     {
         return $this;
@@ -19,7 +20,7 @@ final class MatcherWithDummyConverter implements ConverterMatcherInterface
     public function match(DataBucket $bucket): ?MatchingResult
     {
         return $bucket->getFormat() === self::FORMAT_NAME
-            ? new MatchingResult(self::FORMAT_NAME, new DummyConverter())
+            ? new MatchingResult(self::FORMAT_NAME, new DummyConverter(), self::MIME)
             : null;
     }
 }

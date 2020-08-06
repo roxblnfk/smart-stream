@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream\Middleware;
 
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -16,20 +15,18 @@ use Yiisoft\Http\Header;
 
 final class BucketStreamMiddleware implements MiddlewareInterface
 {
-    private ContainerInterface $container;
     private StreamFactoryInterface $streamFactory;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(StreamFactoryInterface $streamFactory)
     {
-        $this->container = $container;
-        $this->streamFactory = $container->get(StreamFactoryInterface::class);
+        $this->streamFactory = $streamFactory;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
         $stream = $response->getBody();
-        if (!$stream instanceof BucketStream || $stream->hasConverter()) {
+        if (!$stream instanceof BucketStream) {
             return $response;
         }
 
@@ -40,7 +37,7 @@ final class BucketStreamMiddleware implements MiddlewareInterface
             return $stream->isReadable() ? $response : $response->withBody($this->streamFactory->createStream(''));
         }
 
-        if (!$bucket->isConvertable() && !$stream->isReadable()) {
+        if (!$stream->hasConverter() && !$bucket->isConvertable() && !$stream->isReadable()) {
             $response = $response->withBody($this->createReadableStream($bucket->getData()));
         }
 
@@ -54,10 +51,10 @@ final class BucketStreamMiddleware implements MiddlewareInterface
         if ($bucket->getStatusCode() !== null) {
             $response = $response->withStatus($bucket->getStatusCode());
         }
-        return $this->addHeaders($response, $bucket->getHeaders());
+        return $this->addHeaderList($response, $bucket->getHeaders());
     }
 
-    private function addHeaders(ResponseInterface $response, array $headers): ResponseInterface
+    private function addHeaderList(ResponseInterface $response, array $headers): ResponseInterface
     {
         foreach ($headers as $header => $value) {
             $response = $response->withHeader($header, $value);
