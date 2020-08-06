@@ -51,10 +51,10 @@ final class BucketStreamMiddleware implements MiddlewareInterface
         if ($bucket->getStatusCode() !== null) {
             $response = $response->withStatus($bucket->getStatusCode());
         }
-        return $this->addHeaderList($response, $bucket->getHeaders());
+        return $this->injectHeaders($response, $bucket->getHeaders());
     }
 
-    private function addHeaderList(ResponseInterface $response, array $headers): ResponseInterface
+    private function injectHeaders(ResponseInterface $response, array $headers): ResponseInterface
     {
         foreach ($headers as $header => $value) {
             $response = $response->withHeader($header, $value);

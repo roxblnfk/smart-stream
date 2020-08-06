@@ -14,6 +14,7 @@ use roxblnfk\SmartStream\Stream\BucketStream;
 use roxblnfk\SmartStream\Tests\Support\DummyBucket;
 use roxblnfk\SmartStream\Tests\Support\MatcherWithAnyFormatDummyConverter;
 use roxblnfk\SmartStream\Tests\Support\MatcherWithDummyConverter;
+use roxblnfk\SmartStream\Tests\Support\NullMatcher;
 use Yiisoft\Http\Header;
 use Yiisoft\Http\Status;
 
@@ -70,24 +71,6 @@ final class BucketStreamMiddlewareTest extends BaseMiddlewareTest
         $this->assertNotSame($stream, $response->getBody());
         $this->assertFalse($response->hasHeader(self::HEADER_NAME));
     }
-    public function testNotConvertableBucketStream()
-    {
-        $middleware = $this->createMiddleware();
-        $request = $this->createServerRequest();
-        $stream = $this->createBucketStreamWithConverter(
-            (new FileBucket('File Content'))->withHeader(self::HEADER_NAME, self::HEADER_VALUE)
-        );
-        $handler = $this->createHandler($stream);
-
-        $response = $middleware->process($request, $handler);
-        $response->getBody()->rewind();
-
-        $this->assertNotSame($handler->getResponse(), $response);
-        $this->assertNotSame($stream, $response->getBody());
-        $this->assertTrue($response->hasHeader(self::HEADER_NAME));
-        $this->assertSame(self::HEADER_VALUE, $response->getHeaderLine(self::HEADER_NAME));
-        $this->assertSame('File Content', $response->getBody()->getContents());
-    }
     public function testConverterMimeTypeRewrittenFromBucket()
     {
         $middleware = $this->createMiddleware();
@@ -102,6 +85,57 @@ final class BucketStreamMiddlewareTest extends BaseMiddlewareTest
         $this->assertTrue($response->hasHeader(Header::CONTENT_TYPE));
         $this->assertSame('text/other-plain-text', $response->getHeaderLine(Header::CONTENT_TYPE));
     }
+    public function testNotConvertableBucketStream()
+    {
+        $middleware = $this->createMiddleware();
+        $request = $this->createServerRequest();
+        $stream = $this->createBucketStreamWithoutConverter(
+            (new FileBucket('File Content'))->withHeader(self::HEADER_NAME, self::HEADER_VALUE)
+        );
+        $handler = $this->createHandler($stream);
+
+        $response = $middleware->process($request, $handler);
+        $response->getBody()->rewind();
+
+        $this->assertNotSame($handler->getResponse(), $response);
+        $this->assertNotSame($stream, $response->getBody());
+        $this->assertTrue($response->hasHeader(self::HEADER_NAME));
+        $this->assertSame(self::HEADER_VALUE, $response->getHeaderLine(self::HEADER_NAME));
+        $this->assertSame('File Content', $response->getBody()->getContents());
+    }
+    public function testNotConvertableBucketStreamFromFileInfo()
+    {
+        $middleware = $this->createMiddleware();
+        $request = $this->createServerRequest();
+        $stream = $this->createBucketStreamWithoutConverter(
+            (FileBucket::createFromPath(__DIR__ . '/../Support/DummyFile.php'))
+        );
+        $handler = $this->createHandler($stream);
+
+        $response = $middleware->process($request, $handler);
+        $response->getBody()->rewind();
+
+        $this->assertNotSame($handler->getResponse(), $response);
+        $this->assertNotSame($stream, $response->getBody());
+    }
+    public function testNotConvertableBucketStreamFromResource()
+    {
+        $middleware = $this->createMiddleware();
+        $request = $this->createServerRequest();
+        try {
+            $fp = fopen(__DIR__ . '/../Support/DummyFile.php', 'r');
+            $stream = $this->createBucketStreamWithoutConverter((new FileBucket($fp)));
+            $handler = $this->createHandler($stream);
+
+            $response = $middleware->process($request, $handler);
+            $response->getBody()->rewind();
+
+            $this->assertNotSame($handler->getResponse(), $response);
+            $this->assertNotSame($stream, $response->getBody());
+        } finally {
+            fclose($fp);
+        }
+    }
 
     private function createBucketStreamWithConverter(DataBucket $bucket): BucketStream
     {
@@ -109,6 +143,10 @@ final class BucketStreamMiddlewareTest extends BaseMiddlewareTest
             new MatcherWithDummyConverter(),
             $bucket->withFormat(MatcherWithDummyConverter::FORMAT_NAME)
         );
+    }
+    private function createBucketStreamWithoutConverter(DataBucket $bucket): BucketStream
+    {
+        return new BucketStream(new NullMatcher(), $bucket);
     }
     private function createMiddleware(): BucketStreamMiddleware
     {
