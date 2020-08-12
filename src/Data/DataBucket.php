@@ -8,7 +8,7 @@ class DataBucket
 {
     /** @var mixed */
     protected $data;
-    protected ?int $code = null;
+    protected ?int $statusCode = null;
     /** @var string[] */
     protected array $headers = [];
     protected ?string $format = null;
@@ -19,12 +19,14 @@ class DataBucket
     public function __construct($data, string $format = null, iterable $params = [])
     {
         $this->data = $data;
-        $this->format = $format;
-        $this->params = $params;
+        if ($format !== null) {
+            $this->format = $format;
+            $this->params = $params;
+        }
     }
     public function getStatusCode(): ?int
     {
-        return $this->code;
+        return $this->statusCode;
     }
     public function getFormat(): ?string
     {
@@ -63,7 +65,7 @@ class DataBucket
     public function withStatusCode(?int $code = Status::OK): self
     {
         $clone = clone $this;
-        $clone->setStatus($code);
+        $clone->setStatusCode($code);
         return $clone;
     }
     public function withHeader(string $name, string $value): self
@@ -104,8 +106,8 @@ class DataBucket
             $this->params = $params;
         }
     }
-    protected function setStatus(?int $code): void
+    protected function setStatusCode(?int $code): void
     {
-        $this->code = $code;
+        $this->statusCode = $code;
     }
 }

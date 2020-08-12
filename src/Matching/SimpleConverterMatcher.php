@@ -40,6 +40,10 @@ final class SimpleConverterMatcher implements ConverterMatcherInterface
 
         # multiple formats
         if (is_array($format)) {
+            # if content-type specified in the bucket
+            if (count($format) > 1 && $bucket->hasHeader(Header::CONTENT_TYPE)) {
+                $format = $this->selectFormatByPreferredContentType($format, $bucket->getHeaderLine(Header::CONTENT_TYPE));
+            }
             if (count($format) > 1) {
                 # find format by headers
                 $format = $this->compareWithAcceptTypes($format) ?? current($format);
@@ -82,6 +86,15 @@ final class SimpleConverterMatcher implements ConverterMatcherInterface
             }
         }
         return count($result) > 0 ? array_unique($result) : null;
+    }
+    private function selectFormatByPreferredContentType(array $formats, string $contentType): array
+    {
+        foreach ($formats as $format) {
+            if ($this->matcherConfig->getMimeType($format) === $contentType) {
+                # todo
+            }
+        }
+        return $formats;
     }
     /**
      * @param string[] $format

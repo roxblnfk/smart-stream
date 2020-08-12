@@ -17,7 +17,7 @@ class RedirectBucket extends DataBucket
     {
         parent::__construct('');
         $this->setLocation($location);
-        $this->setStatus($code);
+        $this->setStatusCode($code);
     }
     public function getLocation(): ?string
     {
