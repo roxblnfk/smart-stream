@@ -50,6 +50,19 @@ abstract class BaseDataBucketTest extends TestCase
         $this->assertFalse($newBucket->hasHeader($header));
         $this->assertNull($newBucket->getHeaderLine($header));
     }
+    public function testWithoutHeadersImmutability(): void
+    {
+        $header = 'Custom-Header';
+        $value = 'Custom Value';
+        $bucket = ($this->createBucket())->withHeader($header, $value);
+
+        $newBucket = $bucket->withoutHeaders();
+
+        $this->assertNotSame($bucket, $newBucket);
+        $this->assertTrue($bucket->hasHeader($header));
+        $this->assertSame($value, $bucket->getHeaderLine($header));
+        $this->assertEmpty($newBucket->getHeaders());
+    }
     public function testWithFormatImmutability(): void
     {
         $bucket = $this->createBucket();

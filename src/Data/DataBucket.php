@@ -86,6 +86,12 @@ class DataBucket
         $clone->unsetHeader($name);
         return $clone;
     }
+    public function withoutHeaders(): self
+    {
+        $clone = clone $this;
+        $clone->headers = [];
+        return $clone;
+    }
 
     protected function unsetHeader(string $name): void
     {
