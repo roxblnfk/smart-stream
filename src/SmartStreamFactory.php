@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream;
 
+use Closure;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
@@ -13,7 +14,6 @@ use roxblnfk\SmartStream\Stream\GeneratorStream;
 
 final class SmartStreamFactory
 {
-    private StreamFactoryInterface $defaultFactory;
     private ConverterMatcherInterface $converterMatcher;
     private string $defaultBucketClass = DataBucket::class;
     private array $factories = [];
@@ -22,8 +22,20 @@ final class SmartStreamFactory
         StreamFactoryInterface $defaultFactory,
         ConverterMatcherInterface $converterMatcher
     ) {
-        $this->defaultFactory = $defaultFactory;
         $this->converterMatcher = $converterMatcher;
+
+        $this->addStreamFactory(static fn($data) => $data instanceof \Generator ? new GeneratorStream($data) : null);
+        $this->addStreamFactory(function ($data) use ($defaultFactory) {
+            switch (true) {
+                case is_string($data):
+                    return $defaultFactory->createStream($data);
+                case is_resource($data):
+                    return $defaultFactory->createStreamFromResource($data);
+                case $data instanceof \SplFileInfo:
+                    return $defaultFactory->createStreamFromFile($data->getPathname());
+            }
+            return null;
+        });
     }
 
     public function withDefaultBucketClass(string $bucketClass): self
@@ -36,23 +48,36 @@ final class SmartStreamFactory
         return $clone;
     }
 
+    /**
+     * Last added factory called first
+     */
+    public function withStreamFactory(Closure $factory): self
+    {
+        $clone = clone $this;
+        $clone->addStreamFactory($factory);
+        return $clone;
+    }
+
+    private function addStreamFactory(Closure $factory): void
+    {
+        array_unshift($this->factories, $factory);
+    }
+
     public function createStream($data, ?RequestInterface $request = null): StreamInterface
     {
-        if (is_string($data)) {
-            return $this->defaultFactory->createStream($data);
+        foreach ($this->factories as $factory) {
+            $result = $factory($data);
+            if ($result instanceof StreamInterface) {
+                return $result;
+            }
+            if ($result instanceof DataBucket) {
+                $data = $result;
+                break;
+            }
         }
-        if ($data instanceof \SplFileInfo) {
-            return $this->defaultFactory->createStreamFromFile($data->getPathname());
-        }
-        if (is_resource($data)) {
-            return $this->defaultFactory->createStreamFromResource($data);
-        }
-        if ($data instanceof \Generator) {
-            return new GeneratorStream($data);
-        }
-        if ($data instanceof DataBucket) {
-            return new BucketStream($this->converterMatcher->withRequest($request), $data);
-        }
-        return new BucketStream($this->converterMatcher->withRequest($request), new $this->defaultBucketClass($data));
+        return new BucketStream(
+            $this->converterMatcher->withRequest($request),
+            $data instanceof DataBucket ? $data : new $this->defaultBucketClass($data)
+        );
     }
 }

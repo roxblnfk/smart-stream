@@ -100,6 +100,7 @@ final class SmartStreamFactoryTest extends TestCase
         /** @var BucketStream $stream */
         $this->assertInstanceOf(DummyBucket::class, $stream->getBucket());
     }
+
     public function testWithDefaultBucketClass(): void
     {
         $factory = $this->createFactory(DummyBucket::class);
@@ -118,6 +119,39 @@ final class SmartStreamFactoryTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $this->createFactory(DummyBucket::class)->withDefaultBucketClass(\stdClass::class);
+    }
+
+    public function testWithStreamFactory(): void
+    {
+        $factory = $this->createFactory(DummyBucket::class);
+        $stream = $this->createMock(StreamInterface::class);
+        $calledAndSkipped = false;
+
+        $newFactory = $factory
+            ->withStreamFactory(static fn ($data) => $stream)
+            ->withStreamFactory(static function ($data) use (&$calledAndSkipped) {
+                $calledAndSkipped = true;
+            });
+        $stream1 = $factory->createStream('some value');
+        $stream2 = $newFactory->createStream('some value');
+
+        // immutability
+        $this->assertNotSame($factory, $newFactory);
+        $this->assertNotSame($stream1, $stream2);
+        // custom factory was called by order
+        $this->assertTrue($calledAndSkipped);
+        $this->assertSame($stream, $stream2);
+    }
+    public function testWithStreamFactoryThatReturnsBucket(): void
+    {
+        $bucket = new DummyBucket();
+        $factory = $this->createFactory()->withStreamFactory(static fn ($data) => $bucket);
+
+        /** @var BucketStream $stream */
+        $stream = $factory->createStream('some value');
+
+        $this->assertInstanceOf(BucketStream::class, $stream);
+        $this->assertSame($bucket, $stream->getBucket());
     }
 
     private function createFactory(string $defaultBucketClass = null): SmartStreamFactory
