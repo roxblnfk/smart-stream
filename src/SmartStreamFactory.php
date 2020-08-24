@@ -58,6 +58,13 @@ final class SmartStreamFactory
         return $clone;
     }
 
+    public function withoutStreamFactories(): self
+    {
+        $clone = clone $this;
+        $clone->factories = [];
+        return $clone;
+    }
+
     private function addStreamFactory(Closure $factory): void
     {
         array_unshift($this->factories, $factory);

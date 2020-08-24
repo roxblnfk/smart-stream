@@ -153,6 +153,20 @@ final class SmartStreamFactoryTest extends TestCase
         $this->assertInstanceOf(BucketStream::class, $stream);
         $this->assertSame($bucket, $stream->getBucket());
     }
+    public function testWithoutStreamFactories(): void
+    {
+        $factory = $this->createFactory(DummyBucket::class);
+
+        $newFactory = $factory->withoutStreamFactories();
+        $stream1 = $factory->createStream('some value');
+        $stream2 = $newFactory->createStream('some value');
+
+        // immutability
+        $this->assertNotSame($factory, $newFactory);
+
+        $this->assertNotInstanceOf(BucketStream::class, $stream1);
+        $this->assertInstanceOf(BucketStream::class, $stream2);
+    }
 
     private function createFactory(string $defaultBucketClass = null): SmartStreamFactory
     {
