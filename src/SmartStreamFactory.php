@@ -15,16 +15,25 @@ final class SmartStreamFactory
 {
     private StreamFactoryInterface $defaultFactory;
     private ConverterMatcherInterface $converterMatcher;
-    private string $defaultBucketClass;
+    private string $defaultBucketClass = DataBucket::class;
+    private array $factories = [];
 
     public function __construct(
         StreamFactoryInterface $defaultFactory,
-        ConverterMatcherInterface $converterMatcher,
-        string $defaultBucketClass = DataBucket::class
+        ConverterMatcherInterface $converterMatcher
     ) {
         $this->defaultFactory = $defaultFactory;
         $this->converterMatcher = $converterMatcher;
-        $this->defaultBucketClass = $defaultBucketClass;
+    }
+
+    public function withDefaultBucketClass(string $bucketClass): self
+    {
+        $clone = clone $this;
+        if (!is_subclass_of($bucketClass, DataBucket::class, true)) {
+            throw new \InvalidArgumentException('Bucket class should be subclass of DataBucket.');
+        }
+        $clone->defaultBucketClass = $bucketClass;
+        return $clone;
     }
 
     public function createStream($data, ?RequestInterface $request = null): StreamInterface

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace roxblnfk\SmartStream\Tests;
 
+use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamInterface;
 use roxblnfk\SmartStream\Data\DataBucket;
 use roxblnfk\SmartStream\SmartStreamFactory;
 use roxblnfk\SmartStream\Stream\BucketStream;
@@ -98,6 +100,25 @@ final class SmartStreamFactoryTest extends TestCase
         /** @var BucketStream $stream */
         $this->assertInstanceOf(DummyBucket::class, $stream->getBucket());
     }
+    public function testWithDefaultBucketClass(): void
+    {
+        $factory = $this->createFactory(DummyBucket::class);
+
+        $newFactory = $factory->withDefaultBucketClass(DummyBucket::class);
+        /** @var BucketStream $stream */
+        $stream = $newFactory->createStream([]);
+
+        // immutability
+        $this->assertNotSame($factory, $newFactory);
+        // bucket class
+        $this->assertInstanceOf(DummyBucket::class, $stream->getBucket());
+    }
+    public function testWithIncorrectDefaultBucketClass(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->createFactory(DummyBucket::class)->withDefaultBucketClass(\stdClass::class);
+    }
 
     private function createFactory(string $defaultBucketClass = null): SmartStreamFactory
     {
@@ -105,9 +126,10 @@ final class SmartStreamFactoryTest extends TestCase
             new Psr17Factory(),
             new NullMatcher(),
         ];
+        $ss = new SmartStreamFactory(...$params);
         if ($defaultBucketClass !== null) {
-            $params[] = $defaultBucketClass;
+            $ss = $ss->withDefaultBucketClass($defaultBucketClass);
         }
-        return new SmartStreamFactory(...$params);
+        return $ss;
     }
 }
