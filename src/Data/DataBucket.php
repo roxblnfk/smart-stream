@@ -64,33 +64,33 @@ class DataBucket
 
     public function withStatusCode(?int $code = Status::OK): self
     {
-        $clone = clone $this;
-        $clone->setStatusCode($code);
-        return $clone;
+        $new = clone $this;
+        $new->setStatusCode($code);
+        return $new;
     }
     public function withHeader(string $name, string $value): self
     {
-        $clone = clone $this;
-        $clone->setHeader($name, $value);
-        return $clone;
+        $new = clone $this;
+        $new->setHeader($name, $value);
+        return $new;
     }
     public function withFormat(?string $format, array $params = null): self
     {
-        $clone = clone $this;
-        $clone->setFormat($format, $params);
-        return $clone;
+        $new = clone $this;
+        $new->setFormat($format, $params);
+        return $new;
     }
     public function withoutHeader(string $name): self
     {
-        $clone = clone $this;
-        $clone->unsetHeader($name);
-        return $clone;
+        $new = clone $this;
+        $new->unsetHeader($name);
+        return $new;
     }
     public function withoutHeaders(): self
     {
-        $clone = clone $this;
-        $clone->headers = [];
-        return $clone;
+        $new = clone $this;
+        $new->headers = [];
+        return $new;
     }
 
     protected function unsetHeader(string $name): void

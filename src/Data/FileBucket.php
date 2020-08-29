@@ -82,40 +82,40 @@ class FileBucket extends DataBucket
 
     public function withAttachment(string $filename = null): self
     {
-        $clone = clone $this;
-        $clone->setAttachment($filename);
-        return $clone;
+        $new = clone $this;
+        $new->setAttachment($filename);
+        return $new;
     }
     public function withContentType(?string $contentType): self
     {
-        $clone = clone $this;
-        $clone->setContentType($contentType);
-        return $clone;
+        $new = clone $this;
+        $new->setContentType($contentType);
+        return $new;
     }
     public function withInline(): self
     {
-        $clone = clone $this;
-        $clone->setInline();
-        return $clone;
+        $new = clone $this;
+        $new->setInline();
+        return $new;
     }
     public function withoutDisposition(): self
     {
-        $clone = clone $this;
-        $clone->contentDisposition = null;
-        $clone->setDispositionHeader();
-        return $clone;
+        $new = clone $this;
+        $new->contentDisposition = null;
+        $new->setDispositionHeader();
+        return $new;
     }
     public function withAutoContentType(): self
     {
-        $clone = clone $this;
+        $new = clone $this;
         $type = null;
-        if ($clone->data instanceof SplFileInfo) {
-            $type = $clone->fileContentType($clone->data->getPathname());
-        } elseif (is_string($clone->data)) {
-            $type = $clone->bufferContentType($clone->data);
+        if ($new->data instanceof SplFileInfo) {
+            $type = $new->fileContentType($new->data->getPathname());
+        } elseif (is_string($new->data)) {
+            $type = $new->bufferContentType($new->data);
         }
-        $clone->setContentType($type);
-        return $clone;
+        $new->setContentType($type);
+        return $new;
     }
 
     protected function setContentType(?string $contentType): void

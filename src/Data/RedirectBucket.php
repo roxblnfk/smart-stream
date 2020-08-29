@@ -25,9 +25,9 @@ class RedirectBucket extends DataBucket
     }
     public function withLocation(?string $location): self
     {
-        $clone = clone $this;
-        $clone->setLocation($location);
-        return $clone;
+        $new = clone $this;
+        $new->setLocation($location);
+        return $new;
     }
 
     protected function setLocation(?string $location): void

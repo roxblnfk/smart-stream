@@ -57,9 +57,9 @@ final class SimpleConverterMatcher implements ConverterMatcherInterface
     }
     public function withRequest(?RequestInterface $request): ConverterMatcherInterface
     {
-        $clone = clone $this;
-        $clone->request = $request;
-        return $clone;
+        $new = clone $this;
+        $new->request = $request;
+        return $new;
     }
 
     private function getBucketFormat(DataBucket $bucket): ?string

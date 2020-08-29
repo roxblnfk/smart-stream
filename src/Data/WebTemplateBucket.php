@@ -38,21 +38,21 @@ class WebTemplateBucket extends DataBucket
 
     public function withLayout(string $layout, iterable $layoutData = []): self
     {
-        $clone = clone $this;
-        $clone->layout = $layout;
-        $clone->layoutData = $layoutData;
-        return $clone;
+        $new = clone $this;
+        $new->layout = $layout;
+        $new->layoutData = $layoutData;
+        return $new;
     }
     public function withTemplate(string $template): self
     {
-        $clone = clone $this;
-        $clone->template = $template;
-        return $clone;
+        $new = clone $this;
+        $new->template = $template;
+        return $new;
     }
     public function withCommonData(iterable $defaultData): self
     {
-        $clone = clone $this;
-        $clone->commonData = $defaultData;
-        return $clone;
+        $new = clone $this;
+        $new->commonData = $defaultData;
+        return $new;
     }
 }

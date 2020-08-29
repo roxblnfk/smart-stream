@@ -13,27 +13,27 @@ final class SimpleMatcherConfig
 
     public function withFormat(string $format, string $converter, string $mimeType = null, array $buckets = []): self
     {
-        $clone = clone $this;
+        $new = clone $this;
 
-        if (array_key_exists($format, $clone->formats)) {
+        if (array_key_exists($format, $new->formats)) {
             # remove format from buckets array
-            array_walk($clone->buckets, static function (array &$formats) use ($format) {
+            array_walk($new->buckets, static function (array &$formats) use ($format) {
                 $formats = array_diff($formats, [$format]);
             });
         }
 
-        $clone->formats[$format] = [$converter, $mimeType, $buckets];
+        $new->formats[$format] = [$converter, $mimeType, $buckets];
 
         foreach ($buckets as $bucket) {
             if (!is_string($bucket)) {
                 throw new \InvalidArgumentException('Bucket should be string value.');
             }
-            if (!array_key_exists($bucket, $clone->buckets)) {
-                $clone->buckets[$bucket] = [];
+            if (!array_key_exists($bucket, $new->buckets)) {
+                $new->buckets[$bucket] = [];
             }
-            $clone->buckets[$bucket][] = $format;
+            $new->buckets[$bucket][] = $format;
         }
-        return $clone;
+        return $new;
     }
 
     public function hasFormat(string $format): bool
