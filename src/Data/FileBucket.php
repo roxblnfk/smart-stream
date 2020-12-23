@@ -80,10 +80,10 @@ class FileBucket extends DataBucket
         return $this->contentDisposition === self::DISPOSITION_INLINE;
     }
 
-    public function withAttachment(string $filename = null): self
+    public function withAttachment(string $fileName = null): self
     {
         $new = clone $this;
-        $new->setAttachment($filename);
+        $new->setAttachment($fileName);
         return $new;
     }
     public function withContentType(?string $contentType): self
@@ -92,10 +92,10 @@ class FileBucket extends DataBucket
         $new->setContentType($contentType);
         return $new;
     }
-    public function withInline(): self
+    public function withInline(string $fileName = null): self
     {
         $new = clone $this;
-        $new->setInline();
+        $new->setInline($fileName);
         return $new;
     }
     public function withoutDisposition(): self
@@ -123,9 +123,10 @@ class FileBucket extends DataBucket
         $this->contentType = $contentType;
         $this->setHeader(Header::CONTENT_TYPE, $contentType);
     }
-    protected function setInline(): void
+    protected function setInline(?string $fileName): void
     {
         $this->contentDisposition = self::DISPOSITION_INLINE;
+        $this->fileName = $fileName;
         $this->setDispositionHeader();
     }
     final protected function setAttachment(?string $fileName): void
@@ -136,11 +137,13 @@ class FileBucket extends DataBucket
     }
     final protected function setDispositionHeader(): void
     {
-        $headerBody = ($this->contentDisposition === self::DISPOSITION_ATTACHMENT && $this->fileName !== null)
+        $headerBody = $this->fileName !== null
             ? sprintf(
                 '%s; filename="%s"; filename*=UTF-8\'\'%s',
                 $this->contentDisposition,
-                preg_replace('/[\x00-\x1F\x7F\"]/', ' ', $this->fileName),
+                preg_replace(
+                    ['/[\x00-\x1F\x7F]/', '/["\\\\]/', '/%([a-f0-9]{2})/'],
+                    [' ', '\\\\$0', '%\\\\$1'], $this->fileName),
                 rawurlencode($this->fileName)
             )
             : $this->contentDisposition;

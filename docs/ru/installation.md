@@ -1,6 +1,6 @@
 # Установка
 
-Предпочтительнее установить этот пакет через [composer](http://getcomposer.org/download/):
+Предпочтительнее установить этот пакет через [Composer](http://getcomposer.org/download/):
 
 ```
 composer require roxblnfk/smart-stream
@@ -43,7 +43,7 @@ return [
 
 #### 2. Добавьте BucketStreamMiddleware в пайплайн приложения
 
-`BucketStreamMiddleware` разместите в стеке middleware перед роутером.
+Разместите `BucketStreamMiddleware` в стеке middleware перед роутером.
 
 ## Настройка SimpleConverterMatcher
 

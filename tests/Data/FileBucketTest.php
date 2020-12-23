@@ -265,7 +265,11 @@ final class FileBucketTest extends BaseDataBucketTest
             ['With Space', 'attachment; filename="With Space"; filename*=UTF-8\'\'With%20Space'],
             [
                 "With \"quote & EOL\r\n",
-                'attachment; filename="With  quote & EOL  "; filename*=UTF-8\'\'With%20%22quote%20%26%20EOL%0D%0A',
+                'attachment; filename="With \\"quote & EOL  "; filename*=UTF-8\'\'With%20%22quote%20%26%20EOL%0D%0A',
+            ],
+            [
+                "% percent %20 %aa",
+                'attachment; filename="% percent %\\20 %\\aa"; filename*=UTF-8\'\'%25%20percent%20%2520%20%25aa',
             ],
             ["\t", 'attachment; filename=" "; filename*=UTF-8\'\'%09'],
             ['dot.exe', 'attachment; filename="dot.exe"; filename*=UTF-8\'\'dot.exe'],
@@ -302,13 +306,22 @@ final class FileBucketTest extends BaseDataBucketTest
 
         $this->assertSame('attachment', $bucket->getHeaderLine(Header::CONTENT_DISPOSITION));
     }
-    public function testDispositionInline(): void
+    public function testDispositionInlineWithoutFilename(): void
     {
         $bucket = $this->createBucket();
 
         $bucket = $bucket->withInline();
 
         $this->assertSame('inline', $bucket->getHeaderLine(Header::CONTENT_DISPOSITION));
+    }
+    public function testDispositionInlineWitFilename(): void
+    {
+        $bucket = $this->createBucket();
+        $filename = 'foo';
+
+        $bucket = $bucket->withInline($filename);
+
+        $this->assertSame('inline; filename="foo"; filename*=UTF-8\'\'foo', $bucket->getHeaderLine(Header::CONTENT_DISPOSITION));
     }
 
     protected function createBucket(): FileBucket

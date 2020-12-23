@@ -57,29 +57,12 @@ abstract class BucketStreamTest extends BaseStreamTest
     }
     public function testRewindAfterRead(): void
     {
-        $this->markTestSkipped('Waiting issue https://bugs.php.net/bug.php?id=79927.');
-        // todo: waiting issue https://bugs.php.net/bug.php?id=79927
-        //
-        //     $stream = $this->createStream();
-        //     $x = '';
-        //     $x .= $stream->read(1);
-        //     $x .= $stream->read(1);
-        //     $x .= $stream->read(1);
-        //     $x .= $stream->read(1);
-        //     $x .= $stream->read(1);
-        //
-        //     $generator = (function (iterable $s) { yield from $s; })([1,2,3,4]);
-        //     echo $generator->current();
-        //     $generator->next();
-        //     echo $generator->current();
-        //     $generator->rewind();
-        //
-        //
-        //     // $this->expectException(RuntimeException::class);
-        //
-        //     $stream->rewind();
-        //     echo $x; die;
-        //     $this->assertSame(0, $stream->tell());
+        $stream = $this->createStream();
+        $stream->read(1);
+
+        $stream->rewind();
+
+        $this->assertSame(0, $stream->tell());
     }
     public function testIsWritable(): void
     {
